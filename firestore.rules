@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // Signup writes its own doc; role is fixed at 'customer' client-side and
+      // never accepted as a field a client can change afterwards.
+      allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.role == 'customer';
+      allow update: if isSignedIn() && request.auth.uid == uid &&
+        request.resource.data.role == resource.data.role;
+      allow update: if isAdmin();
+    }
+
+    match /vehicles/{id} {
+      allow read: if isSignedIn() && (isAdmin() || resource.data.driverUid == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /submissions/{id} {
+      allow read: if isSignedIn() && (isAdmin() || resource.data.driverUid == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.driverUid == request.auth.uid &&
+        request.resource.data.status == 'Awaiting Review';
+      // Only the review verdict fields change after creation, and only an
+      // admin can move a submission out of Awaiting Review.
+      allow update: if isAdmin();
+    }
+
+    match /incidents/{id} {
+      allow read: if isSignedIn() && (isAdmin() || resource.data.driverUid == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.driverUid == request.auth.uid;
+      allow update: if isAdmin();
+    }
+  }
+}
