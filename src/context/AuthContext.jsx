@@ -13,14 +13,24 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [profileError, setProfileError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
+      setProfileError(null);
       if (nextUser) {
-        const snap = await getDoc(doc(db, 'users', nextUser.uid));
-        setProfile(snap.exists() ? snap.data() : null);
+        // A denied or failed profile read must not leave the app stuck on a
+        // loading screen forever - surface it and let the caller decide,
+        // rather than an unhandled rejection skipping setLoading(false).
+        try {
+          const snap = await getDoc(doc(db, 'users', nextUser.uid));
+          setProfile(snap.exists() ? snap.data() : null);
+        } catch (err) {
+          setProfile(null);
+          setProfileError(err);
+        }
       } else {
         setProfile(null);
       }
@@ -61,6 +71,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     profile,
+    profileError,
     role: profile?.role || null,
     loading,
     signIn,
