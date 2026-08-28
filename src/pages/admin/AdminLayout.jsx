@@ -6,6 +6,7 @@ const NAV = [
   ['/admin/vehicles', 'Vehicles'],
   ['/admin/queue', 'Review Queue'],
   ['/admin/outcomes', 'Outcomes'],
+  ['/admin/team', 'Team'],
 ];
 
 export function AdminLayout() {

@@ -53,6 +53,10 @@ export async function findUserByEmail(email) {
   return d ? { uid: d.id, ...d.data() } : null;
 }
 
+export async function setUserRole(uid, role) {
+  return updateDoc(doc(db, 'users', uid), { role });
+}
+
 // --- Submissions (vehicle condition checks) ---
 
 const ANGLES = ['front', 'left', 'rear', 'right'];

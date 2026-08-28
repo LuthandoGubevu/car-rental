@@ -15,6 +15,7 @@ import { Overview } from './pages/admin/Overview';
 import { Vehicles } from './pages/admin/Vehicles';
 import { ReviewQueue } from './pages/admin/ReviewQueue';
 import { Outcomes } from './pages/admin/Outcomes';
+import { Team } from './pages/admin/Team';
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="vehicles" element={<Vehicles />} />
         <Route path="queue" element={<ReviewQueue />} />
         <Route path="outcomes" element={<Outcomes />} />
+        <Route path="team" element={<Team />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
