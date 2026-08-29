@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getVehicleForDriver, createSubmission, uploadSubmissionPhotos } from '../../lib/firestore';
+import { CameraCapture } from '../../components/CameraCapture';
 
 const ANGLES = [
   { key: 'front', label: 'Front', guide: 'Stand about 3 metres in front of the vehicle, centred on the number plate.' },
@@ -15,7 +16,6 @@ const DAMAGE_TYPES = ['Scratch or scuff', 'Dent', 'Cracked or broken part', 'Chi
 export function VehicleCheck() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const fileInput = useRef(null);
 
   const [vehicle, setVehicle] = useState(undefined);
   const [step, setStep] = useState(0); // 0..3 capture, 4 damage, 5 review
@@ -35,10 +35,16 @@ export function VehicleCheck() {
   const capturing = step < ANGLES.length;
   const angle = ANGLES[step];
 
-  function handleFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPhotos((prev) => ({ ...prev, [angle.key]: { file, previewUrl: URL.createObjectURL(file) } }));
+  function handleCapture(blob) {
+    setPhotos((prev) => ({ ...prev, [angle.key]: { file: blob, previewUrl: URL.createObjectURL(blob) } }));
+  }
+
+  function retake() {
+    setPhotos((prev) => {
+      const next = { ...prev };
+      delete next[angle.key];
+      return next;
+    });
   }
 
   function next() {
@@ -76,24 +82,14 @@ export function VehicleCheck() {
           <div className="step-indicator">Step {step + 1} of {ANGLES.length + 2}: {angle.label}</div>
           <p className="muted">{angle.guide}</p>
           {photos[angle.key] ? (
-            <img className="capture-preview" src={photos[angle.key].previewUrl} alt={angle.label} />
+            <>
+              <img className="capture-preview" src={photos[angle.key].previewUrl} alt={angle.label} />
+              <button className="btn-secondary" onClick={retake}>Retake photo</button>
+              <button className="btn-primary btn-inline" onClick={next}>Continue</button>
+            </>
           ) : (
-            <div className="capture-placeholder">No photo yet</div>
+            <CameraCapture onCapture={handleCapture} />
           )}
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            style={{ display: 'none' }}
-            onChange={handleFile}
-          />
-          <button className="btn-secondary" onClick={() => fileInput.current?.click()}>
-            {photos[angle.key] ? 'Retake photo' : 'Take photo'}
-          </button>
-          <button className="btn-primary btn-inline" disabled={!photos[angle.key]} onClick={next}>
-            Continue
-          </button>
         </div>
       )}
 

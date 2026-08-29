@@ -363,15 +363,27 @@ textarea {
   margin: 14px 0;
 }
 
-.capture-placeholder {
-  height: 220px;
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
+.camera-view {
   margin: 14px 0;
+}
+
+.camera-video {
+  width: 100%;
+  max-height: 360px;
+  border-radius: 10px;
+  background: #000;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.camera-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 14px 0;
+  font-size: 14px;
 }
 
 .review-grid {
