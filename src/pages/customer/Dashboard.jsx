@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getVehicleForDriver } from '../../lib/firestore';
+import { getVehicleForDriver, getLatestSubmissionForDriver } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -15,11 +15,15 @@ function isDue(vehicle) {
 export function Dashboard() {
   const { user, profile } = useAuth();
   const [vehicle, setVehicle] = useState(undefined);
+  const [latestSubmission, setLatestSubmission] = useState(undefined);
 
   useEffect(() => {
     let active = true;
     getVehicleForDriver(user.uid).then((v) => {
       if (active) setVehicle(v);
+    });
+    getLatestSubmissionForDriver(user.uid).then((s) => {
+      if (active) setLatestSubmission(s);
     });
     return () => {
       active = false;
@@ -41,6 +45,19 @@ export function Dashboard() {
       {!vehicle && (
         <div className="card empty-card">
           <p>No vehicle is linked to your account yet. Contact your branch to have one assigned.</p>
+        </div>
+      )}
+
+      {latestSubmission?.status === 'Declined' && (
+        <div className="card decline-banner">
+          <h2>Your last submission was declined</h2>
+          {(latestSubmission.declineReasons || []).length > 0 && (
+            <ul style={{ margin: '0 0 8px', paddingLeft: 18 }}>
+              {latestSubmission.declineReasons.map((r) => <li key={r}>{r}</li>)}
+            </ul>
+          )}
+          {latestSubmission.declineNotes && <p className="muted">{latestSubmission.declineNotes}</p>}
+          <Link to="/check" className="btn-primary btn-inline">Submit again</Link>
         </div>
       )}
 

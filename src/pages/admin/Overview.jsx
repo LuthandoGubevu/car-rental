@@ -12,13 +12,13 @@ export function Overview() {
   }, []);
 
   const awaiting = submissions.filter((s) => s.status === 'Awaiting Review').length;
-  const followUp = submissions.filter((s) => s.status === 'Follow-up Required').length;
+  const declined = submissions.filter((s) => s.status === 'Declined').length;
   const inspectionDue = vehicles.filter((v) => v.status === 'Inspection Due').length;
 
   const stats = [
     ['Vehicles in fleet', vehicles.length],
     ['Awaiting review', awaiting],
-    ['Follow-up required', followUp],
+    ['Declined', declined],
     ['Inspection due', inspectionDue],
   ];
 

@@ -9,25 +9,25 @@ function formatDate(ts) {
 }
 
 export function Outcomes() {
-  const [tab, setTab] = useState('fails');
+  const [tab, setTab] = useState('declined');
   const [submissions, setSubmissions] = useState([]);
 
   useEffect(() => {
     listSubmissions().then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')));
   }, []);
 
-  const visible = tab === 'fails' ? submissions.filter((s) => s.status === 'Follow-up Required') : submissions;
+  const visible = tab === 'declined' ? submissions.filter((s) => s.status === 'Declined') : submissions;
 
   return (
     <div className="page">
       <h1>Outcomes</h1>
       <p className="page-sub">Recorded verdicts for the team to action</p>
       <div className="tabs">
-        <button className={tab === 'fails' ? 'tab active' : 'tab'} onClick={() => setTab('fails')}>Needs follow-up</button>
+        <button className={tab === 'declined' ? 'tab active' : 'tab'} onClick={() => setTab('declined')}>Declined</button>
         <button className={tab === 'all' ? 'tab active' : 'tab'} onClick={() => setTab('all')}>All reviewed</button>
       </div>
       <table className="table">
-        <thead><tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Customer</th><th>Reviewed by</th><th>Outcome</th></tr></thead>
+        <thead><tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Customer</th><th>Reviewed by</th><th>Outcome</th><th>Reason</th></tr></thead>
         <tbody>
           {visible.map((s) => (
             <tr key={s.id}>
@@ -37,6 +37,7 @@ export function Outcomes() {
               <td>{s.customer}</td>
               <td>{s.reviewedBy || '—'}</td>
               <td><StatusChip status={s.status} /></td>
+              <td className="muted">{(s.declineReasons || []).join(', ') || '—'}</td>
             </tr>
           ))}
         </tbody>

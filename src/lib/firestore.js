@@ -105,6 +105,14 @@ export async function listSubmissionsForDriver(uid) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
+export async function getLatestSubmissionForDriver(uid) {
+  const snap = await getDocs(
+    query(collection(db, 'submissions'), where('driverUid', '==', uid), orderBy('createdAt', 'desc'), limit(1))
+  );
+  const d = snap.docs[0];
+  return d ? { id: d.id, ...d.data() } : null;
+}
+
 export async function listSubmissions(status) {
   const clauses = status ? [where('status', '==', status)] : [];
   const snap = await getDocs(query(collection(db, 'submissions'), ...clauses, orderBy('createdAt', 'desc')));
@@ -116,13 +124,15 @@ export async function getSubmission(id) {
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
-export async function recordVerdict(id, { verdict, reviewedBy }) {
-  const status = verdict === 'meets' ? 'Reviewed' : 'Follow-up Required';
+export async function recordVerdict(id, { verdict, reviewedBy, declineReasons, declineNotes }) {
+  const status = verdict === 'approved' ? 'Reviewed' : 'Declined';
   return updateDoc(doc(db, 'submissions', id), {
     status,
     verdict,
     reviewedBy,
     reviewedAt: serverTimestamp(),
+    declineReasons: verdict === 'declined' ? declineReasons || [] : null,
+    declineNotes: verdict === 'declined' ? declineNotes || '' : null,
   });
 }
 

@@ -5,6 +5,14 @@ import { StatusChip } from '../../components/StatusChip';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 
+const DECLINE_REASONS = [
+  'Photo is blurry or unclear',
+  'Wrong angle — vehicle not fully in frame',
+  "Photo doesn't match the vehicle on record",
+  'Missing one or more required photos',
+  'Other',
+];
+
 function formatDate(ts) {
   const d = ts?.toDate?.();
   if (!d) return '—';
@@ -16,6 +24,9 @@ export function ReviewQueue() {
   const [tab, setTab] = useState('open');
   const [submissions, setSubmissions] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [declining, setDeclining] = useState(false);
+  const [reasons, setReasons] = useState([]);
+  const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [toast, flash] = useFlash();
 
@@ -27,11 +38,31 @@ export function ReviewQueue() {
 
   const visible = tab === 'open' ? submissions.filter((s) => s.status === 'Awaiting Review') : submissions;
 
+  function open(submission) {
+    setSelected(submission);
+    setDeclining(false);
+    setReasons([]);
+    setNotes('');
+  }
+
+  function toggleReason(reason) {
+    setReasons((prev) => (prev.includes(reason) ? prev.filter((r) => r !== reason) : [...prev, reason]));
+  }
+
   async function decide(verdict) {
     setBusy(true);
     try {
-      await recordVerdict(selected.id, { verdict, reviewedBy: profile?.name });
-      flash(verdict === 'meets' ? `${selected.ref} recorded as meeting the standard.` : `${selected.ref} flagged for follow-up.`);
+      await recordVerdict(selected.id, {
+        verdict,
+        reviewedBy: profile?.name,
+        declineReasons: verdict === 'declined' ? reasons : undefined,
+        declineNotes: verdict === 'declined' ? notes : undefined,
+      });
+      flash(
+        verdict === 'approved'
+          ? `${selected.ref} approved.`
+          : `${selected.ref} declined — ${profile?.name || 'the reviewer'} sent feedback to the driver.`
+      );
       setSelected(null);
       refresh();
     } catch {
@@ -59,7 +90,7 @@ export function ReviewQueue() {
               <td>{s.vehicle} · {s.reg}</td>
               <td>{s.customer}</td>
               <td><StatusChip status={s.status} /></td>
-              <td><button className="btn-secondary" onClick={() => setSelected(s)}>View</button></td>
+              <td><button className="btn-secondary" onClick={() => open(s)}>View</button></td>
             </tr>
           ))}
         </tbody>
@@ -87,14 +118,57 @@ export function ReviewQueue() {
             ) : (
               <div className="damage-summary muted">No damage reported.</div>
             )}
-            {selected.status === 'Awaiting Review' ? (
+
+            {selected.status === 'Awaiting Review' && !declining && (
               <div className="modal-actions">
-                <button className="btn-primary" disabled={busy} onClick={() => decide('meets')}>Meets standard</button>
-                <button className="btn-danger" disabled={busy} onClick={() => decide('follow-up')}>Needs follow-up</button>
+                <button className="btn-primary" disabled={busy} onClick={() => decide('approved')}>Approve</button>
+                <button className="btn-danger" disabled={busy} onClick={() => setDeclining(true)}>Decline</button>
               </div>
-            ) : (
-              <p className="muted">Reviewed by {selected.reviewedBy || '—'} · {selected.verdict === 'meets' ? 'Meets standard' : 'Needs follow-up'}</p>
             )}
+
+            {selected.status === 'Awaiting Review' && declining && (
+              <div className="decline-panel">
+                <p className="muted" style={{ marginBottom: 10 }}>Tell the driver what needs fixing — this goes back to them so they can resubmit.</p>
+                {DECLINE_REASONS.map((reason) => (
+                  <label key={reason} className="checkbox-row">
+                    <input type="checkbox" checked={reasons.includes(reason)} onChange={() => toggleReason(reason)} />
+                    {reason}
+                  </label>
+                ))}
+                <textarea
+                  placeholder="Add any extra detail for the driver (optional)"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+                <div className="modal-actions">
+                  <button
+                    className="btn-danger"
+                    disabled={busy || (reasons.length === 0 && !notes.trim())}
+                    onClick={() => decide('declined')}
+                  >
+                    {busy ? 'Sending…' : 'Confirm decline'}
+                  </button>
+                  <button className="btn-ghost" onClick={() => setDeclining(false)}>Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {selected.status !== 'Awaiting Review' && (
+              <div>
+                <p className="muted">Reviewed by {selected.reviewedBy || '—'} · {selected.verdict === 'approved' ? 'Approved' : 'Declined'}</p>
+                {selected.verdict === 'declined' && (
+                  <div className="damage-summary">
+                    {(selected.declineReasons || []).length > 0 && (
+                      <ul style={{ margin: '0 0 8px', paddingLeft: 18 }}>
+                        {selected.declineReasons.map((r) => <li key={r}>{r}</li>)}
+                      </ul>
+                    )}
+                    {selected.declineNotes && <p className="muted">{selected.declineNotes}</p>}
+                  </div>
+                )}
+              </div>
+            )}
+
             <button className="btn-ghost" onClick={() => setSelected(null)}>Close</button>
           </div>
         </div>

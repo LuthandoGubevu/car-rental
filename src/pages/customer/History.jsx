@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Fragment, useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { listSubmissionsForDriver } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
@@ -30,16 +30,29 @@ export function History() {
       {submissions && submissions.length > 0 && (
         <table className="table">
           <thead>
-            <tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Status</th></tr>
+            <tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
             {submissions.map((s) => (
-              <tr key={s.id}>
-                <td>{formatDate(s.createdAt)}</td>
-                <td>{s.ref}</td>
-                <td>{s.vehicle} · {s.reg}</td>
-                <td><StatusChip status={s.status} /></td>
-              </tr>
+              <Fragment key={s.id}>
+                <tr>
+                  <td>{formatDate(s.createdAt)}</td>
+                  <td>{s.ref}</td>
+                  <td>{s.vehicle} · {s.reg}</td>
+                  <td><StatusChip status={s.status} /></td>
+                  <td>{s.status === 'Declined' && <Link to="/check" className="btn-secondary btn-inline">Submit again</Link>}</td>
+                </tr>
+                {s.status === 'Declined' && (
+                  <tr>
+                    <td colSpan={5} className="decline-detail">
+                      {(s.declineReasons || []).length > 0 && (
+                        <span>{s.declineReasons.join(' · ')}</span>
+                      )}
+                      {s.declineNotes && <span> — {s.declineNotes}</span>}
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>

@@ -1,7 +1,7 @@
 const STYLES = {
   'Awaiting Review': { bg: '#FFF1E6', fg: '#B45309' },
   Reviewed: { bg: '#DCFCE7', fg: '#15803D' },
-  'Follow-up Required': { bg: '#FEE2E2', fg: '#B91C1C' },
+  Declined: { bg: '#FEE2E2', fg: '#B91C1C' },
   Submitted: { bg: '#DBEAFE', fg: '#1D4ED8' },
   Missed: { bg: '#F1F5F9', fg: '#475569' },
   Logged: { bg: '#FEF3C7', fg: '#92400E' },
