@@ -94,7 +94,14 @@ export async function createSubmission({ uid, driverName, vehicle, photos, damag
     status: 'Awaiting Review',
     createdAt: serverTimestamp(),
   });
-  await updateDoc(doc(db, 'vehicles', vehicle.id), { lastInspectionAt: serverTimestamp() });
+  // Best-effort: the submission itself is already saved by this point, so a
+  // failure bumping the vehicle's "last inspected" stamp shouldn't make a
+  // successful submission look like it failed to the driver.
+  try {
+    await updateDoc(doc(db, 'vehicles', vehicle.id), { lastInspectionAt: serverTimestamp() });
+  } catch (err) {
+    console.error('Could not update vehicle lastInspectionAt after submission:', err);
+  }
   return { id: docRef.id, ref };
 }
 
