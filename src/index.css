@@ -1207,7 +1207,7 @@ textarea {
 .landing-feature h3 { font-size: 16px; font-weight: 600; color: var(--ink-900); margin: 0 0 8px; }
 .landing-feature p { margin: 0; color: var(--muted); line-height: 1.6; text-wrap: pretty; }
 
-.landing-shots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; }
+.landing-shots-grid { display: grid; grid-template-columns: 1fr; gap: 40px; }
 .landing-shot img {
   width: 100%;
   display: block;
