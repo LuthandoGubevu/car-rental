@@ -19,6 +19,9 @@ import { Outcomes } from './pages/admin/Outcomes';
 import { Incidents } from './pages/admin/Incidents';
 import { DemoRequests } from './pages/admin/DemoRequests';
 import { Team } from './pages/admin/Team';
+import { Privacy } from './pages/legal/Privacy';
+import { Terms } from './pages/legal/Terms';
+import { Popia } from './pages/legal/Popia';
 
 export default function App() {
   return (
@@ -26,6 +29,9 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/popia" element={<Popia />} />
 
       <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerLayout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />

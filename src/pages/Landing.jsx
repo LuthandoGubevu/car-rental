@@ -186,6 +186,12 @@ export function Landing() {
       <footer className="landing-footer">
         <span>Car Care</span>
         <span className="muted">Monthly vehicle condition checks for South African rental and lease fleets.</span>
+        <div className="footer-links">
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/popia">POPIA Compliance</Link>
+        </div>
+        <span className="footer-copyright">© {new Date().getFullYear()} Car Care. All rights reserved.</span>
       </footer>
     </div>
   );
