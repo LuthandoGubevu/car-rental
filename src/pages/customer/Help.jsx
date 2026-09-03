@@ -14,6 +14,14 @@ export function Help() {
         <h2>Contact your branch</h2>
         <p className="muted">For anything urgent, such as an accident or breakdown, contact your branch directly rather than waiting on a review.</p>
       </div>
+      <div className="card">
+        <h2>Why the camera opens instead of a gallery</h2>
+        <p className="muted">
+          Car Care takes over your camera directly instead of letting you choose a photo from your gallery.
+          That way a submission can't be an old or unrelated photo — every photo you send is verifiably the
+          vehicle, right now.
+        </p>
+      </div>
     </div>
   );
 }

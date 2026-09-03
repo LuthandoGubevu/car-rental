@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { listSubmissionsForDriver } from '../../lib/firestore';
@@ -8,6 +8,12 @@ function formatDate(ts) {
   const d = ts?.toDate?.();
   if (!d) return '—';
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function monthTile(ts) {
+  const d = ts?.toDate?.();
+  if (!d) return '—';
+  return d.toLocaleDateString('en-ZA', { month: 'short' }).toUpperCase();
 }
 
 export function History() {
@@ -23,39 +29,49 @@ export function History() {
     <div className="page">
       <h1>Inspection History</h1>
       {location.state?.justSubmitted && (
-        <div className="banner-success">Submitted as {location.state.justSubmitted}. It is now awaiting review.</div>
+        <div className="banner banner-success">
+          <span className="banner-icon">✓</span>
+          Submitted as {location.state.justSubmitted}. It is now awaiting review.
+        </div>
       )}
-      {submissions === undefined && <div className="page-loading">Loading…</div>}
-      {submissions?.length === 0 && <p className="muted">No condition checks submitted yet.</p>}
+
+      {submissions === undefined && (
+        <div className="skeleton-list">
+          <div className="skeleton-row" />
+          <div className="skeleton-row" />
+          <div className="skeleton-row" />
+        </div>
+      )}
+
+      {submissions?.length === 0 && (
+        <div className="empty-dashed">
+          <div className="empty-dashed-title">No condition checks submitted yet</div>
+          <div className="empty-dashed-body">Your monthly submissions will appear here once you complete one.</div>
+        </div>
+      )}
+
       {submissions && submissions.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Status</th><th></th></tr>
-          </thead>
-          <tbody>
-            {submissions.map((s) => (
-              <Fragment key={s.id}>
-                <tr>
-                  <td>{formatDate(s.createdAt)}</td>
-                  <td>{s.ref}</td>
-                  <td>{s.vehicle} · {s.reg}</td>
-                  <td><StatusChip status={s.status} /></td>
-                  <td>{s.status === 'Declined' && <Link to="/dashboard/check" className="btn-secondary btn-inline">Submit again</Link>}</td>
-                </tr>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {submissions.map((s) => (
+            <div key={s.id} className="history-row">
+              <div className="history-month">{monthTile(s.createdAt)}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="history-ref">{s.ref} · {s.vehicle} · {s.reg}</div>
+                <div className="history-detail">
+                  {formatDate(s.createdAt)}{s.reviewedBy ? ` · reviewed by ${s.reviewedBy}` : ''}
+                </div>
                 {s.status === 'Declined' && (
-                  <tr>
-                    <td colSpan={5} className="decline-detail">
-                      {(s.declineReasons || []).length > 0 && (
-                        <span>{s.declineReasons.join(' · ')}</span>
-                      )}
-                      {s.declineNotes && <span> — {s.declineNotes}</span>}
-                    </td>
-                  </tr>
+                  <div className="history-detail">
+                    {(s.declineReasons || []).join(' · ')}
+                    {s.declineNotes ? ` — ${s.declineNotes}` : ''}
+                    {' '}<Link to="/dashboard/check">Submit again</Link>
+                  </div>
                 )}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
+              </div>
+              <StatusChip status={s.status} />
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

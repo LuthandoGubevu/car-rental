@@ -51,7 +51,7 @@ export function Login() {
             className={tried && !password.trim() ? 'field-error' : ''}
           />
           {error && <div className="form-error">{error}</div>}
-          <button type="submit" className="btn-primary" disabled={busy}>
+          <button type="submit" className="btn-primary btn-block" disabled={busy}>
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
         </form>

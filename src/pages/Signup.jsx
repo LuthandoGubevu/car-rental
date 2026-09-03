@@ -87,7 +87,7 @@ export function Signup() {
             </div>
           </div>
           {error && <div className="form-error">{error}</div>}
-          <button type="submit" className="btn-primary" disabled={busy}>
+          <button type="submit" className="btn-primary btn-block" disabled={busy}>
             {busy ? 'Creating account…' : 'Create account'}
           </button>
         </form>

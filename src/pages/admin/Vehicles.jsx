@@ -61,11 +61,15 @@ export function Vehicles() {
     <div className="page">
       <h1>Vehicles</h1>
       <div className="toolbar">
-        <input placeholder="Search make, model, reg or customer" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <div className="search-field">
+          <span>⌕</span>
+          <input placeholder="Search make, model, reg or customer" value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option>All statuses</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
+        <div className="toolbar-spacer" />
         <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Add vehicle'}</button>
       </div>
 
@@ -78,26 +82,35 @@ export function Vehicles() {
           <div className="form-field"><label>VIN</label><input value={draft.vin} onChange={(e) => setDraft((d) => ({ ...d, vin: e.target.value }))} /></div>
           <div className="form-field"><label>Mileage</label><input value={draft.mileage} onChange={(e) => setDraft((d) => ({ ...d, mileage: e.target.value }))} /></div>
           <div className="form-field"><label>Branch</label><input value={draft.branch} onChange={(e) => setDraft((d) => ({ ...d, branch: e.target.value }))} /></div>
-          <div className="form-field"><label>Driver email (optional)</label><input value={draft.driverEmail} onChange={(e) => setDraft((d) => ({ ...d, driverEmail: e.target.value }))} placeholder="Must already have a driver account" /></div>
+          <div className="form-field"><label>Driver email <span className="optional">optional</span></label><input value={draft.driverEmail} onChange={(e) => setDraft((d) => ({ ...d, driverEmail: e.target.value }))} placeholder="Must already have a driver account" /></div>
           <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Save vehicle'}</button>
         </form>
       )}
 
-      <table className="table">
-        <thead><tr><th>Vehicle</th><th>Reg</th><th>Branch</th><th>Customer</th><th>Status</th><th>Condition</th></tr></thead>
-        <tbody>
-          {filtered.map((v) => (
-            <tr key={v.id}>
-              <td>{v.make} {v.model}</td>
-              <td>{v.reg}</td>
-              <td>{v.branch}</td>
-              <td>{v.customer || '—'}</td>
-              <td><StatusChip status={v.status} /></td>
-              <td><StatusChip status={v.condition} /></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="table-card">
+        <table className="table">
+          <thead><tr><th>Vehicle</th><th>Reg</th><th>Branch</th><th>Customer</th><th>Status</th><th>Condition</th></tr></thead>
+          <tbody>
+            {filtered.map((v) => (
+              <tr key={v.id}>
+                <td>{v.make} {v.model}</td>
+                <td>{v.reg}</td>
+                <td className="dim">{v.branch}</td>
+                <td>{v.customer || '—'}</td>
+                <td><StatusChip status={v.status} /></td>
+                <td><StatusChip status={v.condition} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <div className="table-empty">
+            <div className="table-empty-mark" />
+            <div className="table-empty-title">No vehicles match that search</div>
+            <div className="table-empty-body">Try a registration, make or customer name.</div>
+          </div>
+        )}
+      </div>
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

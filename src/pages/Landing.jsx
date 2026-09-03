@@ -28,7 +28,7 @@ const FLEET_SIZES = ['1–25 vehicles', '26–100 vehicles', '101–300 vehicles
 
 export function Landing() {
   const { user, role } = useAuth();
-  const [form, setForm] = useState({ name: '', company: '', email: '', phone: '', fleetSize: '', message: '' });
+  const [form, setForm] = useState({ name: '', company: '', email: '', phone: '', fleetSize: '', branches: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -144,34 +144,41 @@ export function Landing() {
             <div className="form-grid">
               <div className="form-field">
                 <label>Your name</label>
-                <input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Nomsa Mabaso" />
+                <input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="Nomsa Mabaso" />
               </div>
               <div className="form-field">
                 <label>Company</label>
-                <input value={form.company} onChange={(e) => update('company', e.target.value)} placeholder="e.g. Motor Lease" />
+                <input value={form.company} onChange={(e) => update('company', e.target.value)} placeholder="Motor Lease" />
               </div>
               <div className="form-field">
                 <label>Email</label>
                 <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} placeholder="you@company.co.za" />
               </div>
               <div className="form-field">
-                <label>Phone (optional)</label>
-                <input value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="e.g. 072 418 2290" />
+                <label>Phone <span className="optional">optional</span></label>
+                <input value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="072 418 2290" />
               </div>
               <div className="form-field">
-                <label>Fleet size (optional)</label>
+                <label>Fleet size <span className="optional">optional</span></label>
                 <select value={form.fleetSize} onChange={(e) => update('fleetSize', e.target.value)}>
                   <option value="">Select a range</option>
                   {FLEET_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
+              <div className="form-field">
+                <label>Branches <span className="optional">optional</span></label>
+                <input value={form.branches} onChange={(e) => update('branches', e.target.value)} placeholder="Johannesburg, Cape Town" />
+              </div>
               <div className="form-field span-2">
-                <label>Anything else? (optional)</label>
+                <label>Anything else? <span className="optional">optional</span></label>
                 <textarea value={form.message} onChange={(e) => update('message', e.target.value)} placeholder="Tell us a bit about your current process" />
               </div>
             </div>
             {error && <div className="form-error">{error}</div>}
-            <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Sending…' : 'Book a demo'}</button>
+            <div className="landing-demo-foot">
+              <span>We reply within one working day. No card, no obligation.</span>
+              <button type="submit" className="btn-orange" disabled={busy}>{busy ? 'Sending…' : 'Book a demo'}</button>
+            </div>
           </form>
         )}
       </section>

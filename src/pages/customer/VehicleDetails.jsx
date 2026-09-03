@@ -33,10 +33,12 @@ export function VehicleDetails() {
   return (
     <div className="page">
       <h1>Vehicle Details</h1>
-      <div className="card">
-        <div className="vehicle-card-top">
-          <h2>{vehicle.make} {vehicle.model}</h2>
-          <StatusChip status={vehicle.status} />
+      <div className="card card-lg">
+        <div className="card-band-head">
+          <div className="vehicle-card-top">
+            <h2>{vehicle.make} {vehicle.model}</h2>
+            <StatusChip status={vehicle.status} />
+          </div>
         </div>
         <dl className="detail-list">
           {ROWS.map(([key, label]) => (

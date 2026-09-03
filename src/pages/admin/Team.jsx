@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { findUserByEmail, setUserRole } from '../../lib/firestore';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
+import { StatusChip } from '../../components/StatusChip';
 
 export function Team() {
   const { user: currentUser } = useAuth();
@@ -69,9 +70,7 @@ export function Team() {
               <h2>{result.name || result.email}</h2>
               <p className="muted">{result.email}</p>
             </div>
-            <span className="chip" style={{ background: result.role === 'admin' ? '#dbeafe' : '#f1f5f9', color: result.role === 'admin' ? '#1d4ed8' : '#475569' }}>
-              {result.role === 'admin' ? 'Admin' : 'Driver'}
-            </span>
+            <StatusChip status={result.role === 'admin' ? 'Admin' : 'Driver'} />
           </div>
           <button
             className={result.role === 'admin' ? 'btn-danger btn-inline' : 'btn-primary btn-inline'}

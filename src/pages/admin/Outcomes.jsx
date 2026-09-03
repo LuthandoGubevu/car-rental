@@ -16,33 +16,52 @@ export function Outcomes() {
     listSubmissions().then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')));
   }, []);
 
-  const visible = tab === 'declined' ? submissions.filter((s) => s.status === 'Declined') : submissions;
+  const declinedSubs = submissions.filter((s) => s.status === 'Declined');
+  const visible = tab === 'declined' ? declinedSubs : submissions;
 
   return (
     <div className="page">
       <h1>Outcomes</h1>
       <p className="page-sub">Recorded verdicts for the team to action</p>
-      <div className="tabs">
-        <button className={tab === 'declined' ? 'tab active' : 'tab'} onClick={() => setTab('declined')}>Declined</button>
-        <button className={tab === 'all' ? 'tab active' : 'tab'} onClick={() => setTab('all')}>All reviewed</button>
+      <div className="toolbar">
+        <div className="tabs">
+          <button className={tab === 'declined' ? 'tab active' : 'tab'} onClick={() => setTab('declined')}>
+            Declined <span className="tab-count">{declinedSubs.length}</span>
+          </button>
+          <button className={tab === 'all' ? 'tab active' : 'tab'} onClick={() => setTab('all')}>
+            All reviewed <span className="tab-count">{submissions.length}</span>
+          </button>
+        </div>
       </div>
-      <table className="table">
-        <thead><tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Customer</th><th>Reviewed by</th><th>Outcome</th><th>Reason</th></tr></thead>
-        <tbody>
-          {visible.map((s) => (
-            <tr key={s.id}>
-              <td>{formatDate(s.reviewedAt || s.createdAt)}</td>
-              <td>{s.ref}</td>
-              <td>{s.vehicle} · {s.reg}</td>
-              <td>{s.customer}</td>
-              <td>{s.reviewedBy || '—'}</td>
-              <td><StatusChip status={s.status} /></td>
-              <td className="muted">{(s.declineReasons || []).join(', ') || '—'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {visible.length === 0 && <p className="muted">Nothing here.</p>}
+      <div className="table-card">
+        <table className="table">
+          <thead><tr><th>Date</th><th>Reference</th><th>Vehicle</th><th>Customer</th><th>Reviewed by</th><th>Outcome</th><th>Reason</th></tr></thead>
+          <tbody>
+            {visible.map((s) => (
+              <tr key={s.id}>
+                <td>{formatDate(s.reviewedAt || s.createdAt)}</td>
+                <td>{s.ref}</td>
+                <td>{s.vehicle} · {s.reg}</td>
+                <td>{s.customer}</td>
+                <td className="dim">{s.reviewedBy || '—'}</td>
+                <td><StatusChip status={s.status} /></td>
+                <td className="dim">{(s.declineReasons || []).join(', ') || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {visible.length === 0 && (
+          <div className="table-empty">
+            <div className="table-empty-mark" />
+            <div className="table-empty-title">{tab === 'declined' ? 'No declined submissions' : 'No reviewed submissions yet'}</div>
+            <div className="table-empty-body">
+              {tab === 'declined'
+                ? 'Submissions declined with feedback will be listed here.'
+                : 'Approved and declined submissions will be listed here.'}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

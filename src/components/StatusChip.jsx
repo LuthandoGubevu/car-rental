@@ -1,29 +1,42 @@
+const GROUPS = {
+  orange: { bg: '#fff3e8', fg: '#b45309', bd: '#f6dcc4', dot: '#f47724' },
+  green: { bg: '#eaf7ef', fg: '#15803d', bd: '#cfeadb', dot: '#22a35a' },
+  red: { bg: '#fdf1f1', fg: '#b91c1c', bd: '#f4d3d3', dot: '#dc2626' },
+  amber: { bg: '#fef6e7', fg: '#92400e', bd: '#f0e0bf', dot: '#d99a2b' },
+  blue: { bg: '#eef4fb', fg: '#1d4ed8', bd: '#d5e2f4', dot: '#3b6fd4' },
+  purple: { bg: '#f3f0fc', fg: '#6d28d9', bd: '#e2dbf6', dot: '#8b5cf6' },
+  grey: { bg: '#f2f4f7', fg: '#5b6b7a', bd: '#e4e8ee', dot: '#9aa5b1' },
+};
+
 const STYLES = {
-  'Awaiting Review': { bg: '#FFF1E6', fg: '#B45309' },
-  Reviewed: { bg: '#DCFCE7', fg: '#15803D' },
-  Declined: { bg: '#FEE2E2', fg: '#B91C1C' },
-  Submitted: { bg: '#DBEAFE', fg: '#1D4ED8' },
-  Missed: { bg: '#F1F5F9', fg: '#475569' },
-  Logged: { bg: '#FEF3C7', fg: '#92400E' },
-  New: { bg: '#FFF1E6', fg: '#B45309' },
-  Contacted: { bg: '#DCFCE7', fg: '#15803D' },
-  'Active Lease': { bg: '#DCFCE7', fg: '#15803D' },
-  Available: { bg: '#DBEAFE', fg: '#1D4ED8' },
-  'Inspection Due': { bg: '#FFF1E6', fg: '#B45309' },
-  'Under Review': { bg: '#FEF3C7', fg: '#92400E' },
-  Maintenance: { bg: '#EDE9FE', fg: '#6D28D9' },
-  'Accident Repair': { bg: '#FEE2E2', fg: '#B91C1C' },
-  Returned: { bg: '#F1F5F9', fg: '#475569' },
-  Good: { bg: '#DCFCE7', fg: '#15803D' },
-  Fair: { bg: '#FEF3C7', fg: '#92400E' },
-  'Attention needed': { bg: '#FEE2E2', fg: '#B91C1C' },
-  'Not yet assessed': { bg: '#F1F5F9', fg: '#475569' },
+  'Awaiting Review': GROUPS.orange,
+  'Inspection Due': GROUPS.orange,
+  New: GROUPS.orange,
+  Reviewed: GROUPS.green,
+  Contacted: GROUPS.green,
+  'Active Lease': GROUPS.green,
+  Good: GROUPS.green,
+  Declined: GROUPS.red,
+  'Attention needed': GROUPS.red,
+  'Accident Repair': GROUPS.red,
+  Logged: GROUPS.amber,
+  Fair: GROUPS.amber,
+  'Under Review': GROUPS.amber,
+  Submitted: GROUPS.blue,
+  Available: GROUPS.blue,
+  Admin: GROUPS.blue,
+  Maintenance: GROUPS.purple,
+  'Not yet assessed': GROUPS.grey,
+  Missed: GROUPS.grey,
+  Returned: GROUPS.grey,
+  Driver: GROUPS.grey,
 };
 
 export function StatusChip({ status }) {
-  const style = STYLES[status] || { bg: '#F1F5F9', fg: '#475569' };
+  const s = STYLES[status] || GROUPS.grey;
   return (
-    <span className="chip" style={{ background: style.bg, color: style.fg }}>
+    <span className="chip" style={{ background: s.bg, color: s.fg, borderColor: s.bd }}>
+      <span className="chip-dot" style={{ background: s.dot }} />
       {status}
     </span>
   );

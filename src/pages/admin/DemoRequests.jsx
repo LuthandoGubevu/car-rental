@@ -24,7 +24,8 @@ export function DemoRequests() {
 
   useEffect(refresh, []);
 
-  const visible = tab === 'open' ? requests.filter((r) => r.status === 'New') : requests;
+  const newRequests = requests.filter((r) => r.status === 'New');
+  const visible = tab === 'open' ? newRequests : requests;
 
   async function contact(request) {
     setBusy(request.id);
@@ -43,41 +44,59 @@ export function DemoRequests() {
     <div className="page">
       <h1>Demo Requests</h1>
       <p className="page-sub">Prospects who booked a demo from the public site</p>
-      <div className="tabs">
-        <button className={tab === 'open' ? 'tab active' : 'tab'} onClick={() => setTab('open')}>New</button>
-        <button className={tab === 'all' ? 'tab active' : 'tab'} onClick={() => setTab('all')}>All requests</button>
+      <div className="toolbar">
+        <div className="tabs">
+          <button className={tab === 'open' ? 'tab active' : 'tab'} onClick={() => setTab('open')}>
+            New <span className="tab-count">{newRequests.length}</span>
+          </button>
+          <button className={tab === 'all' ? 'tab active' : 'tab'} onClick={() => setTab('all')}>
+            All requests <span className="tab-count">{requests.length}</span>
+          </button>
+        </div>
       </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Date</th><th>Company</th><th>Contact</th><th>Email</th>
-            <th>Phone</th><th>Fleet size</th><th>Message</th><th>Status</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {visible.map((r) => (
-            <tr key={r.id}>
-              <td>{formatDate(r.createdAt)}</td>
-              <td>{r.company}</td>
-              <td>{r.name}</td>
-              <td>{r.email}</td>
-              <td>{r.phone || '—'}</td>
-              <td>{r.fleetSize || '—'}</td>
-              <td className="muted">{r.message || '—'}</td>
-              <td><StatusChip status={r.status} /></td>
-              <td>
-                {r.status === 'New' && (
-                  <button className="btn-secondary" disabled={busy === r.id} onClick={() => contact(r)}>
-                    {busy === r.id ? 'Marking…' : 'Mark as contacted'}
-                  </button>
-                )}
-              </td>
+      <div className="table-card">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Company</th><th>Contact</th><th>Email</th>
+              <th>Phone</th><th>Fleet size</th><th>Message</th><th>Status</th><th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {visible.length === 0 && <p className="muted">Nothing here.</p>}
+          </thead>
+          <tbody>
+            {visible.map((r) => (
+              <tr key={r.id}>
+                <td>{formatDate(r.createdAt)}</td>
+                <td>{r.company}</td>
+                <td>{r.name}</td>
+                <td>{r.email}</td>
+                <td className="dim">{r.phone || '—'}</td>
+                <td className="dim">{r.fleetSize || '—'}</td>
+                <td className="dim">{r.message || '—'}</td>
+                <td><StatusChip status={r.status} /></td>
+                <td>
+                  {r.status === 'New' && (
+                    <button className="btn-row-action" disabled={busy === r.id} onClick={() => contact(r)}>
+                      {busy === r.id ? 'Marking…' : 'Mark as contacted'}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {visible.length === 0 && (
+          <div className="table-empty">
+            <div className="table-empty-mark" />
+            <div className="table-empty-title">{tab === 'open' ? 'No new requests' : 'No demo requests yet'}</div>
+            <div className="table-empty-body">
+              {tab === 'open'
+                ? 'Every request has been contacted. New ones land here as prospects submit the form.'
+                : 'Requests booked from the public site will appear here.'}
+            </div>
+          </div>
+        )}
+      </div>
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

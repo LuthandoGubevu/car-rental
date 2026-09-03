@@ -153,7 +153,7 @@ export async function updateNotificationPrefs(uid, prefs) {
 
 export async function createIncident({ uid, driverName, vehicle, type, description, date }) {
   const ref = genRef('INC');
-  return addDoc(collection(db, 'incidents'), {
+  const docRef = await addDoc(collection(db, 'incidents'), {
     ref,
     driverUid: uid,
     customer: driverName,
@@ -166,6 +166,7 @@ export async function createIncident({ uid, driverName, vehicle, type, descripti
     status: 'Logged',
     createdAt: serverTimestamp(),
   });
+  return { id: docRef.id, ref };
 }
 
 export async function listIncidentsForDriver(uid) {
@@ -194,13 +195,14 @@ export async function markIncidentReviewed(id, reviewedBy) {
 // all - see the "New" status: it's set client-side but pinned by the rules
 // so a request can't arrive pre-marked as handled.
 
-export async function createDemoRequest({ name, company, email, phone, fleetSize, message }) {
+export async function createDemoRequest({ name, company, email, phone, fleetSize, branches, message }) {
   return addDoc(collection(db, 'demoRequests'), {
     name,
     company,
     email,
     phone: phone || '',
     fleetSize: fleetSize || '',
+    branches: branches || '',
     message: message || '',
     status: 'New',
     createdAt: serverTimestamp(),
