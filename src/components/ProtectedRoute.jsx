@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const ROLE_HOME = { driver: '/dashboard', admin: '/admin', staff: '/console' };
+
 export function ProtectedRoute({ role, children }) {
   const { user, profileError, role: userRole, loading, signOut } = useAuth();
 
@@ -19,8 +21,9 @@ export function ProtectedRoute({ role, children }) {
     );
   }
 
-  if (role && userRole !== role) {
-    return <Navigate to={userRole === 'admin' ? '/admin' : '/dashboard'} replace />;
+  const allowed = !role || (Array.isArray(role) ? role.includes(userRole) : userRole === role);
+  if (!allowed) {
+    return <Navigate to={ROLE_HOME[userRole] || '/'} replace />;
   }
   return children;
 }

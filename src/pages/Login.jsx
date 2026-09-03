@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export function Login() {
@@ -32,7 +32,7 @@ export function Login() {
       <div className="auth-card">
         <div className="brand-mark">Car Care</div>
         <h1>Sign in</h1>
-        <p className="auth-sub">Submit your monthly vehicle condition check or review submissions.</p>
+        <p className="auth-sub">Sign in to your driver, fleet admin, or Car Care staff account.</p>
         <form onSubmit={handleSubmit}>
           <label>Email address</label>
           <input
@@ -55,9 +55,6 @@ export function Login() {
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-        <p className="auth-foot">
-          Need an account? <Link to="/signup">Register as a driver</Link>
-        </p>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import {
   limit,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -23,8 +24,18 @@ export function genRef(prefix) {
 
 // --- Vehicles ---
 
-export async function listVehicles() {
-  const snap = await getDocs(query(collection(db, 'vehicles'), orderBy('reg')));
+export async function listVehicles(companyId) {
+  const snap = await getDocs(
+    query(collection(db, 'vehicles'), where('companyId', '==', companyId), orderBy('reg'))
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+// Staff-only: every vehicle across every company, for business-wide metrics
+// on the internal console. Regular admin/driver reads always go through
+// listVehicles(companyId) / getVehicleForDriver above.
+export async function listAllVehicles() {
+  const snap = await getDocs(collection(db, 'vehicles'));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
@@ -47,10 +58,19 @@ export async function updateVehicle(id, data) {
   return updateDoc(doc(db, 'vehicles', id), data);
 }
 
-export async function findUserByEmail(email) {
-  const snap = await getDocs(query(collection(db, 'users'), where('email', '==', email), limit(1)));
+export async function findUserByEmail(email, companyId) {
+  const snap = await getDocs(
+    query(collection(db, 'users'), where('companyId', '==', companyId), where('email', '==', email), limit(1))
+  );
   const d = snap.docs[0];
   return d ? { uid: d.id, ...d.data() } : null;
+}
+
+export async function listCompanyUsers(companyId) {
+  const snap = await getDocs(query(collection(db, 'users'), where('companyId', '==', companyId)));
+  return snap.docs
+    .map((d) => ({ uid: d.id, ...d.data() }))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 
 export async function setUserRole(uid, role) {
@@ -79,11 +99,12 @@ export async function uploadSubmissionPhotos(uid, photos) {
   return urls;
 }
 
-export async function createSubmission({ uid, driverName, vehicle, photos, damage }) {
+export async function createSubmission({ uid, companyId, driverName, vehicle, photos, damage }) {
   const ref = genRef('VCC');
   const docRef = await addDoc(collection(db, 'submissions'), {
     ref,
     driverUid: uid,
+    companyId,
     customer: driverName,
     vehicleId: vehicle.id,
     vehicle: [vehicle.make, vehicle.model].filter(Boolean).join(' '),
@@ -120,8 +141,9 @@ export async function getLatestSubmissionForDriver(uid) {
   return d ? { id: d.id, ...d.data() } : null;
 }
 
-export async function listSubmissions(status) {
-  const clauses = status ? [where('status', '==', status)] : [];
+export async function listSubmissions(status, companyId) {
+  const clauses = [where('companyId', '==', companyId)];
+  if (status) clauses.push(where('status', '==', status));
   const snap = await getDocs(query(collection(db, 'submissions'), ...clauses, orderBy('createdAt', 'desc')));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
@@ -151,11 +173,12 @@ export async function updateNotificationPrefs(uid, prefs) {
 
 // --- Incidents ---
 
-export async function createIncident({ uid, driverName, vehicle, type, description, date }) {
+export async function createIncident({ uid, companyId, driverName, vehicle, type, description, date }) {
   const ref = genRef('INC');
   const docRef = await addDoc(collection(db, 'incidents'), {
     ref,
     driverUid: uid,
+    companyId,
     customer: driverName,
     vehicleId: vehicle?.id || null,
     vehicle: vehicle ? [vehicle.make, vehicle.model].filter(Boolean).join(' ') : '',
@@ -176,8 +199,10 @@ export async function listIncidentsForDriver(uid) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function listIncidents() {
-  const snap = await getDocs(query(collection(db, 'incidents'), orderBy('createdAt', 'desc')));
+export async function listIncidents(companyId) {
+  const snap = await getDocs(
+    query(collection(db, 'incidents'), where('companyId', '==', companyId), orderBy('createdAt', 'desc'))
+  );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
@@ -189,7 +214,7 @@ export async function markIncidentReviewed(id, reviewedBy) {
   });
 }
 
-// --- Demo requests ---
+// --- Demo requests (staff-only; see firestore.rules) ---
 // Submitted from the public landing page by visitors who are never signed
 // in, so this is the one write path in the app with no auth requirement at
 // all - see the "New" status: it's set client-side but pinned by the rules
@@ -219,5 +244,96 @@ export async function markDemoRequestContacted(id, contactedBy) {
     status: 'Contacted',
     contactedBy,
     contactedAt: serverTimestamp(),
+  });
+}
+
+// --- Companies (staff-only management; see firestore.rules) ---
+
+export async function listCompanies() {
+  const snap = await getDocs(query(collection(db, 'companies'), orderBy('createdAt', 'desc')));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function createCompany({ name, tier, branches, contactName, contactEmail, contactPhone, address }, staffUid) {
+  const docRef = await addDoc(collection(db, 'companies'), {
+    name,
+    status: 'trial',
+    tier: tier || '',
+    branches: branches || [],
+    contactName: contactName || '',
+    contactEmail: contactEmail || '',
+    contactPhone: contactPhone || '',
+    address: address || '',
+    primaryAdminUid: null,
+    createdAt: serverTimestamp(),
+    createdBy: staffUid,
+  });
+  return docRef;
+}
+
+export async function getCompany(companyId) {
+  const snap = await getDoc(doc(db, 'companies', companyId));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+export async function updateCompany(companyId, data) {
+  return updateDoc(doc(db, 'companies', companyId), data);
+}
+
+// --- Invites: the single provisioning mechanism for a company's first
+// admin (created by staff) and for a company's drivers (created by that
+// company's own admin). See firestore.rules for how a client cannot
+// self-assign a role/companyId without a matching pending invite. ---
+
+export async function createInvite({ role, companyId, companyName, email }, createdByUid) {
+  const docRef = await addDoc(collection(db, 'invites'), {
+    role,
+    companyId,
+    companyName,
+    email: email.trim().toLowerCase(),
+    status: 'pending',
+    createdBy: createdByUid,
+    createdAt: serverTimestamp(),
+    acceptedBy: null,
+    acceptedAt: null,
+  });
+  return docRef.id;
+}
+
+export async function getInvite(inviteId) {
+  const snap = await getDoc(doc(db, 'invites', inviteId));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+export async function listCompanyInvites(companyId) {
+  const snap = await getDocs(query(collection(db, 'invites'), where('companyId', '==', companyId)));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function revokeInvite(inviteId) {
+  return updateDoc(doc(db, 'invites', inviteId), { status: 'revoked' });
+}
+
+// Runs the two writes (create the user profile, mark the invite accepted)
+// as one atomic transaction - either both succeed or neither does, so an
+// invite can never be left half-consumed.
+export async function acceptInviteTransaction(inviteId, uid, profileFields) {
+  await runTransaction(db, async (tx) => {
+    const inviteRef = doc(db, 'invites', inviteId);
+    const inviteSnap = await tx.get(inviteRef);
+    if (!inviteSnap.exists() || inviteSnap.data().status !== 'pending') {
+      throw new Error('This invite has already been used.');
+    }
+    const invite = inviteSnap.data();
+    tx.set(doc(db, 'users', uid), {
+      ...profileFields,
+      role: invite.role,
+      companyId: invite.companyId,
+      email: invite.email,
+      inviteId,
+      invitedBy: invite.createdBy,
+      createdAt: serverTimestamp(),
+    });
+    tx.update(inviteRef, { status: 'accepted', acceptedBy: uid, acceptedAt: serverTimestamp() });
   });
 }

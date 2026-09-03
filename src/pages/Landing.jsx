@@ -58,7 +58,7 @@ export function Landing() {
     }
   }
 
-  const accountLink = user ? (role === 'admin' ? '/admin' : '/dashboard') : '/login';
+  const accountLink = user ? (role === 'admin' ? '/admin' : role === 'staff' ? '/console' : '/dashboard') : '/login';
   const accountLabel = user ? 'Go to your account' : 'Log in';
 
   return (

@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { listSubmissions, listIncidents } from '../../lib/firestore';
+import { listCompanies, listDemoRequests } from '../../lib/firestore';
 
 const NAV = [
-  ['/admin', 'Overview'],
-  ['/admin/vehicles', 'Vehicles'],
-  ['/admin/queue', 'Review queue'],
-  ['/admin/outcomes', 'Outcomes'],
-  ['/admin/incidents', 'Incidents'],
-  ['/admin/team', 'Team'],
+  ['/console', 'Overview'],
+  ['/console/companies', 'Companies'],
+  ['/console/demo-requests', 'Demo requests'],
 ];
 
 function initials(name) {
@@ -22,29 +19,25 @@ function initials(name) {
 
 function useCrumbLeaf() {
   const { pathname } = useLocation();
-  if (pathname === '/admin') return 'Overview';
-  const match = NAV.find(([to]) => to !== '/admin' && pathname.startsWith(to));
+  if (pathname === '/console') return 'Overview';
+  const match = NAV.find(([to]) => to !== '/console' && pathname.startsWith(to));
   return match ? match[1] : 'Overview';
 }
 
-function useAdminCounts(companyId) {
-  const [counts, setCounts] = useState({ awaiting: 0, openIncidents: 0 });
+function useConsoleCounts() {
+  const [counts, setCounts] = useState({ newDemoRequests: 0 });
   useEffect(() => {
-    if (!companyId) return;
-    Promise.all([listSubmissions(undefined, companyId), listIncidents(companyId)]).then(([subs, incs]) =>
-      setCounts({
-        awaiting: subs.filter((s) => s.status === 'Awaiting Review').length,
-        openIncidents: incs.filter((i) => i.status === 'Logged').length,
-      })
+    Promise.all([listCompanies(), listDemoRequests()]).then(([, demoRequests]) =>
+      setCounts({ newDemoRequests: demoRequests.filter((r) => r.status === 'New').length })
     );
-  }, [companyId]);
+  }, []);
   return counts;
 }
 
-export function AdminLayout() {
+export function ConsoleLayout() {
   const { profile, signOut } = useAuth();
-  const { awaiting, openIncidents } = useAdminCounts(profile?.companyId);
-  const badges = { '/admin/queue': awaiting, '/admin/incidents': openIncidents };
+  const { newDemoRequests } = useConsoleCounts();
+  const badges = { '/console/demo-requests': newDemoRequests };
   const crumbLeaf = useCrumbLeaf();
 
   return (
@@ -54,11 +47,11 @@ export function AdminLayout() {
           <img src="/favicon.svg" alt="" />
           <div>
             <div className="sidebar-brand-name">Car Care</div>
-            <div className="sidebar-brand-sub">Fleet console</div>
+            <div className="sidebar-brand-sub">Staff console</div>
           </div>
         </div>
 
-        <div className="sidebar-group">Operations</div>
+        <div className="sidebar-group">Business</div>
         <nav className="app-nav">
           {NAV.map(([to, label]) => (
             <NavLink key={to} to={to} end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
@@ -74,7 +67,7 @@ export function AdminLayout() {
             <div className="sidebar-avatar">{initials(profile?.name)}</div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="sidebar-user-name">{profile?.name}</div>
-              <div className="sidebar-user-role">Fleet administrator</div>
+              <div className="sidebar-user-role">Car Care staff</div>
             </div>
             <button className="sidebar-signout" onClick={signOut}>Sign out</button>
           </div>
@@ -84,7 +77,7 @@ export function AdminLayout() {
       <div className="app-body">
         <header className="app-header">
           <div className="crumb">
-            <span>Fleet console</span>
+            <span>Staff console</span>
             <span className="crumb-sep">/</span>
             <span className="crumb-leaf">{crumbLeaf}</span>
           </div>

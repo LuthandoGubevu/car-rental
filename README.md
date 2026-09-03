@@ -39,25 +39,56 @@ The app is wired to the `stratifyai-d82ce` Firebase project
    (requires the [Firebase CLI](https://firebase.google.com/docs/cli) and
    `firebase use stratifyai-d82ce` once, or pass `--project stratifyai-d82ce`).
 
-## Data model
+## Data model (multi-tenant)
 
-- `users/{uid}` — `role` (`customer` | `admin`), `name`, `email`, `idNumber`,
-  `mobile`, `number`, `branch`, notification prefs.
-- `vehicles/{id}` — fleet vehicle, optionally linked to a driver via
-  `driverUid`.
-- `submissions/{id}` — one condition check: four photo URLs, optional damage
-  report, `status` (`Awaiting Review` → `Reviewed` / `Follow-up Required`).
-- `incidents/{id}` — ad-hoc incident reports from drivers.
+The app is multi-tenant: every fleet company is a separate `companies` doc,
+and every operational record carries a `companyId` so one company's admin can
+never see another's data. Enforced in `firestore.rules`/`storage.rules`, not
+just in the UI.
+
+- `companies/{companyId}` — `name`, `status` (`trial` | `active` | `inactive`),
+  `tier`, contact info, `branches`.
+- `users/{uid}` — `role` (`driver` | `admin` | `staff`), `companyId` (`null`
+  only for `staff`), `name`, `email`, `idNumber`, `mobile`, `number`,
+  `branch`, notification prefs.
+- `invites/{inviteId}` — the only way an `admin`/`driver` account is ever
+  created (see **Roles** below); the document ID is itself the invite link's
+  token.
+- `vehicles/{id}` — fleet vehicle, `companyId`, optionally linked to a driver
+  via `driverUid`.
+- `submissions/{id}` — one condition check: `companyId`, four photo URLs,
+  optional damage report, `status` (`Awaiting Review` → `Reviewed` /
+  `Declined`).
+- `incidents/{id}` — ad-hoc incident reports from drivers, `companyId`.
+- `demoRequests/{id}` — public leads from the landing page; staff-only, not
+  scoped to any company (a prospect isn't a company yet).
 
 ## Roles
 
-Every account created through **Sign up** is a `customer`. There is no
-self-serve path to the `admin` role — that's enforced in `firestore.rules`,
-not just in the UI. To make someone an admin:
+There is **no public self-serve signup** for any role — every account is
+invite-provisioned:
 
-1. Have them sign up normally (or create the user in the Firebase console).
-2. In the Firestore console, open their `users/{uid}` document and set
-   `role` to `admin`.
+- **`staff`** (Car Care's own team, `/console`) — provisioned by hand via the
+  Firebase console or `scripts/migrate-multitenant.mjs`, never through the
+  app. This is the one manual step; everything else below is in-app.
+- **`admin`** (a fleet company's own team, `/admin`) — a `staff` member
+  creates the company from **Console → Companies → Add company**, which also
+  creates that company's first admin invite. Copy the generated link
+  (`/accept-invite/{inviteId}`) and send it to the customer.
+- **`driver`** (`/dashboard`) — an existing company `admin` invites one from
+  **Team → Invite a driver**, the same link mechanism.
 
-An admin links a vehicle to a driver from **Vehicles → Add vehicle** by
-entering the driver's email — the driver must already have an account.
+Whoever holds an invite link visits `/accept-invite/:inviteId`, sets a
+password, and their account is created with exactly the role/company the
+invite grants — enforced by `firestore.rules`, not the client.
+
+An admin links a vehicle to an existing driver in their own company from
+**Vehicles → Add vehicle** by entering the driver's email.
+
+### Migrating existing data
+
+`scripts/migrate-multitenant.mjs` backfills `companyId` onto a single
+pre-existing (pre-multi-tenant) company's data and provisions the first
+`staff` account. Read the comment at the top of that file before running it
+— it uses the Firebase Admin SDK and must be run locally against a rehearsed
+dataset first, never blind against production.

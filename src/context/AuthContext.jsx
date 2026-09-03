@@ -5,8 +5,9 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { acceptInviteTransaction } from '../lib/firestore';
 
 const AuthContext = createContext(null);
 
@@ -42,26 +43,31 @@ export function AuthProvider({ children }) {
     await signInWithEmailAndPassword(auth, email, password);
   }
 
-  // Self-serve signup always creates a customer account. Admin accounts are
-  // provisioned by hand in Firestore (see README) - there is no UI path that
-  // lets a signup grant itself the admin role.
-  async function signUp({ email, password, firstName, surname, idNumber, mobile, number, branch }) {
+  // Accounts are always invite-provisioned (an admin invites a driver, staff
+  // invites a company's first admin) - there is no public self-serve signup.
+  // This creates the Auth account, then atomically writes the Firestore
+  // profile and marks the invite consumed; if the Firestore side fails (e.g.
+  // the invite was already used), the just-created Auth account is deleted
+  // rather than left as an orphaned account with no profile.
+  async function acceptInvite(inviteId, { firstName, surname, idNumber, mobile, number, branch }, password, email) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const name = [firstName, surname].filter(Boolean).join(' ').trim();
-    const profileDoc = {
-      role: 'customer',
-      email,
-      firstName: firstName || '',
-      surname: surname || '',
-      name: name || email,
-      idNumber: idNumber || '',
-      mobile: mobile || '',
-      number: number || '',
-      branch: branch || '',
-      createdAt: serverTimestamp(),
-    };
-    await setDoc(doc(db, 'users', cred.user.uid), profileDoc);
-    setProfile(profileDoc);
+    try {
+      await acceptInviteTransaction(inviteId, cred.user.uid, {
+        firstName: firstName || '',
+        surname: surname || '',
+        name: name || email,
+        idNumber: idNumber || '',
+        mobile: mobile || '',
+        number: number || '',
+        branch: branch || '',
+      });
+    } catch (err) {
+      await cred.user.delete();
+      throw err;
+    }
+    const snap = await getDoc(doc(db, 'users', cred.user.uid));
+    setProfile(snap.data());
   }
 
   async function signOutUser() {
@@ -75,7 +81,7 @@ export function AuthProvider({ children }) {
     role: profile?.role || null,
     loading,
     signIn,
-    signUp,
+    acceptInvite,
     signOut: signOutUser,
   };
 

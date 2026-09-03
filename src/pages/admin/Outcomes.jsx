@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { listSubmissions } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 
@@ -9,12 +10,15 @@ function formatDate(ts) {
 }
 
 export function Outcomes() {
+  const { profile } = useAuth();
+  const companyId = profile?.companyId;
   const [tab, setTab] = useState('declined');
   const [submissions, setSubmissions] = useState([]);
 
   useEffect(() => {
-    listSubmissions().then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')));
-  }, []);
+    if (!companyId) return;
+    listSubmissions(undefined, companyId).then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')));
+  }, [companyId]);
 
   const declinedSubs = submissions.filter((s) => s.status === 'Declined');
   const visible = tab === 'declined' ? declinedSubs : submissions;

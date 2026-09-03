@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
+import { AcceptInvite } from './pages/AcceptInvite';
 import { CustomerLayout } from './pages/customer/CustomerLayout';
 import { Dashboard } from './pages/customer/Dashboard';
 import { VehicleCheck } from './pages/customer/VehicleCheck';
@@ -17,8 +17,11 @@ import { Vehicles } from './pages/admin/Vehicles';
 import { ReviewQueue } from './pages/admin/ReviewQueue';
 import { Outcomes } from './pages/admin/Outcomes';
 import { Incidents } from './pages/admin/Incidents';
-import { DemoRequests } from './pages/admin/DemoRequests';
 import { Team } from './pages/admin/Team';
+import { ConsoleLayout } from './pages/console/ConsoleLayout';
+import { ConsoleOverview } from './pages/console/ConsoleOverview';
+import { Companies } from './pages/console/Companies';
+import { DemoRequests } from './pages/console/DemoRequests';
 import { Privacy } from './pages/legal/Privacy';
 import { Terms } from './pages/legal/Terms';
 import { Popia } from './pages/legal/Popia';
@@ -28,12 +31,12 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/accept-invite/:inviteId" element={<AcceptInvite />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/popia" element={<Popia />} />
 
-      <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerLayout /></ProtectedRoute>}>
+      <Route path="/dashboard" element={<ProtectedRoute role="driver"><CustomerLayout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="check" element={<VehicleCheck />} />
         <Route path="history" element={<History />} />
@@ -49,8 +52,13 @@ export default function App() {
         <Route path="queue" element={<ReviewQueue />} />
         <Route path="outcomes" element={<Outcomes />} />
         <Route path="incidents" element={<Incidents />} />
-        <Route path="demo-requests" element={<DemoRequests />} />
         <Route path="team" element={<Team />} />
+      </Route>
+
+      <Route path="/console" element={<ProtectedRoute role="staff"><ConsoleLayout /></ProtectedRoute>}>
+        <Route index element={<ConsoleOverview />} />
+        <Route path="companies" element={<Companies />} />
+        <Route path="demo-requests" element={<DemoRequests />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

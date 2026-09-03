@@ -30,6 +30,11 @@ const STYLES = {
   Missed: GROUPS.grey,
   Returned: GROUPS.grey,
   Driver: GROUPS.grey,
+  Staff: GROUPS.purple,
+  Active: GROUPS.green,
+  Trial: GROUPS.amber,
+  Inactive: GROUPS.grey,
+  Invited: GROUPS.amber,
 };
 
 export function StatusChip({ status }) {

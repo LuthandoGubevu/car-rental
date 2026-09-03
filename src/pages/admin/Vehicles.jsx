@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { listVehicles, addVehicle, findUserByEmail } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 import { useFlash } from '../../lib/useFlash';
@@ -9,6 +10,8 @@ const STATUSES = ['Active Lease', 'Available', 'Inspection Due', 'Under Review',
 const EMPTY_DRAFT = { make: '', model: '', year: '', reg: '', vin: '', mileage: '', branch: '', driverEmail: '' };
 
 export function Vehicles() {
+  const { profile } = useAuth();
+  const companyId = profile?.companyId;
   const [vehicles, setVehicles] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All statuses');
@@ -18,10 +21,10 @@ export function Vehicles() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    listVehicles().then(setVehicles);
+    if (companyId) listVehicles(companyId).then(setVehicles);
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   const filtered = vehicles.filter((v) => {
     const matchesStatus = statusFilter === 'All statuses' || v.status === statusFilter;
@@ -37,15 +40,15 @@ export function Vehicles() {
       let driverUid = null;
       let customer = '';
       if (draft.driverEmail.trim()) {
-        const driver = await findUserByEmail(draft.driverEmail.trim());
+        const driver = await findUserByEmail(draft.driverEmail.trim(), companyId);
         if (driver) {
           driverUid = driver.uid;
           customer = driver.name;
         } else {
-          flash('No driver account found with that email. The vehicle was saved without a driver linked.', 'error');
+          flash('No driver account found with that email in your company. The vehicle was saved without a driver linked.', 'error');
         }
       }
-      await addVehicle({ ...draft, driverUid, customer, status: driverUid ? 'Active Lease' : 'Available' });
+      await addVehicle({ ...draft, companyId, driverUid, customer, status: driverUid ? 'Active Lease' : 'Available' });
       setDraft(EMPTY_DRAFT);
       setFormOpen(false);
       refresh();

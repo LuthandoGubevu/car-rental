@@ -37,11 +37,13 @@ export function ReviewQueue() {
   const [busy, setBusy] = useState(false);
   const [toast, flash] = useFlash();
 
+  const companyId = profile?.companyId;
+
   function refresh() {
-    listSubmissions().then(setSubmissions);
+    if (companyId) listSubmissions(undefined, companyId).then(setSubmissions);
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   const awaitingSubs = submissions.filter((s) => s.status === 'Awaiting Review');
   const visible = tab === 'open' ? awaitingSubs : submissions;

@@ -1,86 +1,173 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { findUserByEmail, setUserRole } from '../../lib/firestore';
+import { listCompanyUsers, listCompanyInvites, createInvite, revokeInvite, setUserRole, getCompany } from '../../lib/firestore';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 import { StatusChip } from '../../components/StatusChip';
+import { InviteLinkDrawer } from '../../components/InviteLinkDrawer';
+
+function formatDate(ts) {
+  const d = ts?.toDate?.();
+  if (!d) return '—';
+  return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
 export function Team() {
-  const { user: currentUser } = useAuth();
-  const [email, setEmail] = useState('');
-  const [result, setResult] = useState(null);
-  const [searched, setSearched] = useState(false);
+  const { user: currentUser, profile } = useAuth();
+  const companyId = profile?.companyId;
+  const [members, setMembers] = useState([]);
+  const [invites, setInvites] = useState([]);
+  const [companyName, setCompanyName] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [draft, setDraft] = useState({ name: '', email: '' });
   const [busy, setBusy] = useState(false);
+  const [busyRow, setBusyRow] = useState(null);
+  const [invite, setInvite] = useState(null);
   const [toast, flash] = useFlash();
 
-  async function handleSearch(e) {
+  function refresh() {
+    if (!companyId) return;
+    listCompanyUsers(companyId).then(setMembers);
+    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending')));
+  }
+
+  useEffect(refresh, [companyId]);
+  useEffect(() => {
+    if (companyId) getCompany(companyId).then((c) => setCompanyName(c?.name || ''));
+  }, [companyId]);
+
+  async function handleInvite(e) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!draft.email.trim()) return;
     setBusy(true);
     try {
-      const found = await findUserByEmail(email.trim());
-      setResult(found);
-      setSearched(true);
+      const inviteId = await createInvite(
+        { role: 'driver', companyId, companyName, email: draft.email },
+        currentUser.uid
+      );
+      setDraft({ name: '', email: '' });
+      setFormOpen(false);
+      refresh();
+      flash('Invite created.');
+      setInvite({
+        link: `${window.location.origin}/accept-invite/${inviteId}`,
+        label: draft.name.trim() || draft.email.trim(),
+        roleLabel: 'Driver',
+      });
     } catch {
-      flash('Search failed. Please try again.', 'error');
+      flash('We could not create this invite.', 'error');
     } finally {
       setBusy(false);
     }
   }
 
-  async function toggleRole() {
-    const nextRole = result.role === 'admin' ? 'customer' : 'admin';
-    if (result.uid === currentUser.uid && nextRole !== 'admin') {
+  async function toggleRole(member) {
+    const nextRole = member.role === 'admin' ? 'driver' : 'admin';
+    if (member.uid === currentUser.uid && nextRole !== 'admin') {
       flash('You cannot remove your own admin access.', 'error');
       return;
     }
-    setBusy(true);
+    setBusyRow(member.uid);
     try {
-      await setUserRole(result.uid, nextRole);
-      setResult((r) => ({ ...r, role: nextRole }));
-      flash(`${result.email} is now ${nextRole === 'admin' ? 'an admin' : 'a driver'}.`);
+      await setUserRole(member.uid, nextRole);
+      flash(`${member.email} is now ${nextRole === 'admin' ? 'an admin' : 'a driver'}.`);
+      refresh();
     } catch {
       flash('We could not update this account.', 'error');
     } finally {
-      setBusy(false);
+      setBusyRow(null);
     }
   }
+
+  async function cancelInvite(inv) {
+    setBusyRow(inv.id);
+    try {
+      await revokeInvite(inv.id);
+      flash('Invite cancelled.');
+      refresh();
+    } catch {
+      flash('We could not cancel this invite.', 'error');
+    } finally {
+      setBusyRow(null);
+    }
+  }
+
+  const rows = [
+    ...members.map((m) => ({ kind: 'member', ...m })),
+    ...invites.map((i) => ({ kind: 'invite', ...i })),
+  ];
 
   return (
     <div className="page">
       <h1>Team</h1>
-      <p className="page-sub">Look up an account by email and grant or remove admin access.</p>
+      <p className="page-sub">Your company's admins and drivers</p>
 
-      <form onSubmit={handleSearch} className="toolbar">
-        <input
-          type="email"
-          placeholder="name@example.co.za"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button type="submit" className="btn-primary" disabled={busy}>Search</button>
-      </form>
+      <div className="toolbar">
+        <div className="toolbar-spacer" />
+        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a driver'}</button>
+      </div>
 
-      {searched && !result && <p className="muted">No account found with that email. They need to sign up first.</p>}
-
-      {result && (
-        <div className="card">
-          <div className="vehicle-card-top">
-            <div>
-              <h2>{result.name || result.email}</h2>
-              <p className="muted">{result.email}</p>
-            </div>
-            <StatusChip status={result.role === 'admin' ? 'Admin' : 'Driver'} />
-          </div>
-          <button
-            className={result.role === 'admin' ? 'btn-danger btn-inline' : 'btn-primary btn-inline'}
-            disabled={busy}
-            onClick={toggleRole}
-          >
-            {result.role === 'admin' ? 'Remove admin access' : 'Make admin'}
-          </button>
-        </div>
+      {formOpen && (
+        <form onSubmit={handleInvite} className="card form-grid">
+          <div className="form-field"><label>Name</label><input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} /></div>
+          <div className="form-field"><label>Email</label><input type="email" value={draft.email} onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))} placeholder="name@example.co.za" /></div>
+          <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Creating invite…' : 'Create invite'}</button>
+        </form>
       )}
+
+      <div className="table-card">
+        <table className="table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Since</th><th></th></tr></thead>
+          <tbody>
+            {rows.map((row) =>
+              row.kind === 'member' ? (
+                <tr key={row.uid}>
+                  <td>{row.name || '—'}</td>
+                  <td>{row.email}</td>
+                  <td><StatusChip status={row.role === 'admin' ? 'Admin' : 'Driver'} /></td>
+                  <td><StatusChip status="Active" /></td>
+                  <td className="dim">{formatDate(row.createdAt)}</td>
+                  <td>
+                    <button
+                      className={row.role === 'admin' ? 'btn-danger btn-inline' : 'btn-row-action'}
+                      disabled={busyRow === row.uid}
+                      onClick={() => toggleRole(row)}
+                    >
+                      {row.role === 'admin' ? 'Remove admin access' : 'Make admin'}
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={row.id}>
+                  <td className="dim">—</td>
+                  <td>{row.email}</td>
+                  <td><StatusChip status={row.role === 'admin' ? 'Admin' : 'Driver'} /></td>
+                  <td><StatusChip status="Invited" /></td>
+                  <td className="dim">{formatDate(row.createdAt)}</td>
+                  <td>
+                    <button
+                      className="btn-row-action"
+                      disabled={busyRow === row.id}
+                      onClick={() => setInvite({ link: `${window.location.origin}/accept-invite/${row.id}`, label: row.email, roleLabel: row.role === 'admin' ? 'Admin' : 'Driver' })}
+                    >
+                      Copy invite link
+                    </button>
+                    <button className="btn-row-action" disabled={busyRow === row.id} onClick={() => cancelInvite(row)}>Cancel</button>
+                  </td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+        {rows.length === 0 && (
+          <div className="table-empty">
+            <div className="table-empty-mark" />
+            <div className="table-empty-title">No team members yet</div>
+            <div className="table-empty-body">Invite your first driver to get started.</div>
+          </div>
+        )}
+      </div>
+      <InviteLinkDrawer invite={invite} onClose={() => setInvite(null)} />
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

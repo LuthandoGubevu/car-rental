@@ -27,7 +27,7 @@ export function ReportIncident() {
     }
     setBusy(true);
     try {
-      const { ref } = await createIncident({ uid: user.uid, driverName: profile?.name, vehicle, ...form });
+      const { ref } = await createIncident({ uid: user.uid, companyId: profile?.companyId, driverName: profile?.name, vehicle, ...form });
       setForm({ type: TYPES[0], description: '', date: '' });
       listIncidentsForDriver(user.uid).then(setIncidents);
       setSuccessRef(ref);

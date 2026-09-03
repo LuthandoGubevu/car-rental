@@ -13,16 +13,17 @@ function formatDate(ts) {
 
 export function Incidents() {
   const { profile } = useAuth();
+  const companyId = profile?.companyId;
   const [tab, setTab] = useState('open');
   const [incidents, setIncidents] = useState([]);
   const [busy, setBusy] = useState(null);
   const [toast, flash] = useFlash();
 
   function refresh() {
-    listIncidents().then(setIncidents);
+    if (companyId) listIncidents(companyId).then(setIncidents);
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   const openIncidents = incidents.filter((i) => i.status === 'Logged');
   const visible = tab === 'open' ? openIncidents : incidents;

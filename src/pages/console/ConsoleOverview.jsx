@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { listVehicles, listSubmissions, listIncidents } from '../../lib/firestore';
+import { listCompanies, listDemoRequests, listAllVehicles } from '../../lib/firestore';
 
 function clamp01(n) {
   if (!Number.isFinite(n)) return 0;
@@ -16,7 +15,7 @@ function startOfISOWeek(date) {
   return d;
 }
 
-function weekBuckets(submissions) {
+function weekBuckets(items) {
   const now = new Date();
   const weeks = [];
   const currentWeekStart = startOfISOWeek(now);
@@ -27,8 +26,8 @@ function weekBuckets(submissions) {
     end.setDate(end.getDate() + 7);
     weeks.push({ start, end, count: 0 });
   }
-  submissions.forEach((s) => {
-    const created = s.createdAt?.toDate?.();
+  items.forEach((item) => {
+    const created = item.createdAt?.toDate?.();
     if (!created) return;
     const bucket = weeks.find((w) => created >= w.start && created < w.end);
     if (bucket) bucket.count += 1;
@@ -48,108 +47,106 @@ function daysSince(date) {
   return Math.floor((Date.now() - date.getTime()) / 86400000);
 }
 
-export function Overview() {
-  const { profile } = useAuth();
-  const companyId = profile?.companyId;
+export function ConsoleOverview() {
+  const [companies, setCompanies] = useState([]);
+  const [demoRequests, setDemoRequests] = useState([]);
   const [vehicles, setVehicles] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
-  const [incidents, setIncidents] = useState([]);
 
   useEffect(() => {
-    if (!companyId) return;
-    listVehicles(companyId).then(setVehicles);
-    listSubmissions(undefined, companyId).then(setSubmissions);
-    listIncidents(companyId).then(setIncidents);
-  }, [companyId]);
+    listCompanies().then(setCompanies);
+    listDemoRequests().then(setDemoRequests);
+    listAllVehicles().then(setVehicles);
+  }, []);
 
-  const awaitingSubs = submissions.filter((s) => s.status === 'Awaiting Review');
-  const awaiting = awaitingSubs.length;
-  const oldestAwaiting = awaitingSubs
-    .map((s) => s.createdAt?.toDate?.())
+  const newDemoRequests = demoRequests.filter((r) => r.status === 'New');
+  const oldestNew = newDemoRequests
+    .map((r) => r.createdAt?.toDate?.())
     .filter(Boolean)
     .sort((a, b) => a - b)[0];
-  const oldestDays = oldestAwaiting ? daysSince(oldestAwaiting) : null;
+  const oldestDays = oldestNew ? daysSince(oldestNew) : null;
 
-  const activeVehicles = vehicles.filter((v) => v.status === 'Active Lease' || v.status === 'Available').length;
-  const branchCount = new Set(vehicles.map((v) => v.branch).filter(Boolean)).size;
-  const inspectionDue = vehicles.filter((v) => v.status === 'Inspection Due').length;
+  const trialCompanies = companies.filter((c) => c.status === 'trial');
+  const activeCompanies = companies.filter((c) => c.status === 'active');
 
   const now = new Date();
   const lastMonthRef = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const submissionsThisMonth = submissions.filter((s) => {
-    const d = s.createdAt?.toDate?.();
+  const companiesThisMonth = companies.filter((c) => {
+    const d = c.createdAt?.toDate?.();
     return d && sameMonth(d, now);
-  });
-  const declinedThisMonth = submissionsThisMonth.filter((s) => s.status === 'Declined').length;
-  const declinedLastMonth = submissions.filter((s) => {
-    const d = s.createdAt?.toDate?.();
-    return d && sameMonth(d, lastMonthRef) && s.status === 'Declined';
+  }).length;
+  const companiesLastMonth = companies.filter((c) => {
+    const d = c.createdAt?.toDate?.();
+    return d && sameMonth(d, lastMonthRef);
   }).length;
 
-  const unreviewedIncidents = incidents.filter((i) => i.status === 'Logged').length;
+  const companyIdsWithVehicles = new Set(vehicles.map((v) => v.companyId).filter(Boolean));
+  const idleCompanies = companies.filter((c) => !companyIdsWithVehicles.has(c.id));
 
   const KPIS = [
     {
-      label: 'Awaiting review',
-      value: awaiting,
-      unit: 'submissions',
+      label: 'New demo requests',
+      value: newDemoRequests.length,
+      unit: 'to contact',
       accent: '#f47724',
-      tag: awaiting > 0 && oldestDays !== null ? `Oldest ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : null,
-      frac: clamp01(vehicles.length ? awaiting / vehicles.length : 0),
+      tag: newDemoRequests.length > 0 && oldestDays !== null ? `Oldest ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : null,
+      frac: clamp01(demoRequests.length ? newDemoRequests.length / demoRequests.length : 0),
     },
     {
-      label: 'Vehicles in fleet',
-      value: vehicles.length,
-      unit: 'active',
+      label: 'Companies on the platform',
+      value: companies.length,
+      unit: 'companies',
       accent: '#00507f',
-      tag: branchCount > 0 ? `${branchCount} branch${branchCount === 1 ? '' : 'es'}` : null,
-      frac: clamp01(vehicles.length ? activeVehicles / vehicles.length : 0),
+      tag: trialCompanies.length > 0 ? `${trialCompanies.length} in trial` : null,
+      frac: clamp01(companies.length ? activeCompanies.length / companies.length : 0),
     },
     {
-      label: 'Declined this month',
-      value: declinedThisMonth,
-      unit: 'to resubmit',
+      label: 'New companies this month',
+      value: companiesThisMonth,
+      unit: 'signed up',
       accent: '#22a35a',
       tag:
-        declinedLastMonth && declinedLastMonth !== declinedThisMonth
-          ? declinedThisMonth < declinedLastMonth
-            ? `Down from ${declinedLastMonth}`
-            : `Up from ${declinedLastMonth}`
+        companiesLastMonth && companiesLastMonth !== companiesThisMonth
+          ? companiesThisMonth < companiesLastMonth
+            ? `Down from ${companiesLastMonth}`
+            : `Up from ${companiesLastMonth}`
           : null,
-      frac: clamp01(submissionsThisMonth.length ? declinedThisMonth / submissionsThisMonth.length : 0),
+      frac: clamp01(companies.length ? companiesThisMonth / companies.length : 0),
     },
     {
-      label: 'Open incidents',
-      value: unreviewedIncidents,
-      unit: 'logged',
-      accent: '#dc2626',
-      tag: 'Needs triage',
-      frac: clamp01(incidents.length ? unreviewedIncidents / incidents.length : 0),
+      label: 'Vehicles under management',
+      value: vehicles.length,
+      unit: 'vehicles',
+      accent: '#8b5cf6',
+      tag:
+        companyIdsWithVehicles.size > 0
+          ? `${companyIdsWithVehicles.size} compan${companyIdsWithVehicles.size === 1 ? 'y' : 'ies'} reporting`
+          : null,
+      frac: clamp01(companies.length ? companyIdsWithVehicles.size / companies.length : 0),
     },
   ];
 
-  const weeks = weekBuckets(submissions);
+  const weeks = weekBuckets(demoRequests);
   const maxWeek = Math.max(1, ...weeks.map((w) => w.count));
   const recentTotal = weeks.reduce((sum, w) => sum + w.count, 0);
 
   const attentionRows = [
-    awaiting > 0 && {
-      to: '/admin/queue',
+    newDemoRequests.length > 0 && {
+      to: '/console/demo-requests',
       dot: '#f47724',
-      title: `${awaiting} submission${awaiting === 1 ? '' : 's'} awaiting a verdict`,
-      sub: oldestDays !== null ? `Review queue · oldest waiting ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : 'Review queue',
+      title: `${newDemoRequests.length} new demo request${newDemoRequests.length === 1 ? '' : 's'}`,
+      sub: 'Demo requests · from the public site',
     },
-    inspectionDue > 0 && {
-      to: '/admin/vehicles',
+    trialCompanies.length > 0 && {
+      to: '/console/companies',
       dot: '#d99a2b',
-      title: `${inspectionDue} vehicle${inspectionDue === 1 ? '' : 's'} due for inspection`,
-      sub: 'Vehicles · overdue for a monthly check',
+      title: `${trialCompanies.length} compan${trialCompanies.length === 1 ? 'y' : 'ies'} on trial`,
+      sub: 'Companies · convert before their trial ends',
     },
-    unreviewedIncidents > 0 && {
-      to: '/admin/incidents',
-      dot: '#dc2626',
-      title: `${unreviewedIncidents} incident${unreviewedIncidents === 1 ? '' : 's'} awaiting triage`,
-      sub: 'Incidents · reported by drivers',
+    idleCompanies.length > 0 && {
+      to: '/console/companies',
+      dot: '#3b6fd4',
+      title: `${idleCompanies.length} compan${idleCompanies.length === 1 ? 'y' : 'ies'} with no vehicles yet`,
+      sub: 'Companies · onboarded but not yet active',
     },
   ].filter(Boolean);
 
@@ -158,9 +155,9 @@ export function Overview() {
       <div className="vehicle-card-top">
         <div>
           <h1>Overview</h1>
-          <p className="page-sub">Condition checks at a glance</p>
+          <p className="page-sub">Car Care, at a glance</p>
         </div>
-        <Link to="/admin/queue" className="btn-primary">Open review queue</Link>
+        <Link to="/console/companies" className="btn-primary">Add a company</Link>
       </div>
 
       <div className="stat-grid">
@@ -191,7 +188,7 @@ export function Overview() {
       <div className="overview-grid">
         <div className="card">
           <div className="chart-head">
-            <h2>Submissions, last 8 weeks</h2>
+            <h2>Demo requests, last 8 weeks</h2>
             <span>{recentTotal} total</span>
           </div>
           <div className="chart">
@@ -213,7 +210,7 @@ export function Overview() {
           {attentionRows.length === 0 && <p className="muted">Nothing needs attention right now.</p>}
           <div className="attention-list">
             {attentionRows.map((row) => (
-              <Link key={row.to} to={row.to} className="attention-row">
+              <Link key={`${row.to}-${row.title}`} to={row.to} className="attention-row">
                 <span className="attention-dot" style={{ background: row.dot }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span className="attention-title">{row.title}</span>

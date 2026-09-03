@@ -59,6 +59,7 @@ export function VehicleCheck() {
       const urls = await uploadSubmissionPhotos(user.uid, files);
       const { ref } = await createSubmission({
         uid: user.uid,
+        companyId: profile?.companyId,
         driverName: profile?.name,
         vehicle,
         photos: urls,
