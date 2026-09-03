@@ -82,7 +82,7 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="landing-section">
+      <section id="how-it-works" className="landing-section">
         <h2 className="landing-section-title">How it works</h2>
         <div className="landing-tracks">
           <div className="landing-track">
@@ -139,6 +139,23 @@ export function Landing() {
             <img src="/screenshots/customer-preview.png" alt="Car Care driver app showing a vehicle's condition check status and quick actions" loading="lazy" />
             <p className="landing-shot-caption">Your drivers' app</p>
           </div>
+        </div>
+      </section>
+
+      <section className="landing-section landing-section-alt">
+        <h2 className="landing-section-title">Simple, per-vehicle pricing</h2>
+        <p className="muted landing-demo-sub">
+          From R42–R89 per vehicle/month, depending on fleet size.
+        </p>
+        <div className="landing-pricing-tags">
+          <span className="landing-pricing-tag">Priced per vehicle, per month</span>
+          <span className="landing-pricing-tag">Volume discounts as your fleet grows</span>
+          <span className="landing-pricing-tag">White-label setup available</span>
+          <span className="landing-pricing-tag">No long-term lock-in</span>
+        </div>
+        <div className="landing-cta-row">
+          <a href="#book-demo" className="btn-orange btn-inline">Get a quote</a>
+          <a href="#how-it-works" className="btn-ghost btn-inline">See how it works</a>
         </div>
       </section>
 
