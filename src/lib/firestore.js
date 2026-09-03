@@ -326,6 +326,34 @@ export async function createInvite({ role, companyId, companyName, email }, crea
   return docRef.id;
 }
 
+// Bulk onboarding: same shape as createInvite, chunked into batches of 400
+// (Firestore's write-batch limit is 500). Returns each row's new invite id
+// alongside its name/email so the caller can build/share the accept links.
+export async function bulkCreateInvites(rows, { role, companyId, companyName }, createdByUid) {
+  const results = [];
+  for (let i = 0; i < rows.length; i += 400) {
+    const chunk = rows.slice(i, i + 400);
+    const batch = writeBatch(db);
+    const refs = chunk.map(() => doc(collection(db, 'invites')));
+    chunk.forEach((row, idx) => {
+      batch.set(refs[idx], {
+        role,
+        companyId,
+        companyName,
+        email: row.email.trim().toLowerCase(),
+        status: 'pending',
+        createdBy: createdByUid,
+        createdAt: serverTimestamp(),
+        acceptedBy: null,
+        acceptedAt: null,
+      });
+    });
+    await batch.commit();
+    results.push(...chunk.map((row, idx) => ({ id: refs[idx].id, name: row.name, email: row.email })));
+  }
+  return results;
+}
+
 export async function getInvite(inviteId) {
   const snap = await getDoc(doc(db, 'invites', inviteId));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;

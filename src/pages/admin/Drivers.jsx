@@ -5,6 +5,7 @@ import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 import { StatusChip } from '../../components/StatusChip';
 import { InviteLinkDrawer } from '../../components/InviteLinkDrawer';
+import { InviteImportDrawer } from './InviteImportDrawer';
 
 function formatDate(ts) {
   const d = ts?.toDate?.();
@@ -23,6 +24,7 @@ export function Drivers() {
   const [busy, setBusy] = useState(false);
   const [busyRow, setBusyRow] = useState(null);
   const [invite, setInvite] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [toast, flash] = useFlash();
 
   function refresh() {
@@ -86,6 +88,7 @@ export function Drivers() {
 
       <div className="toolbar">
         <div className="toolbar-spacer" />
+        <button className="btn-secondary" onClick={() => setImportOpen(true)}>Import from file</button>
         <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a driver'}</button>
       </div>
 
@@ -139,6 +142,21 @@ export function Drivers() {
           </div>
         )}
       </div>
+      {importOpen && (
+        <InviteImportDrawer
+          role="driver"
+          roleLabel="Driver"
+          companyId={companyId}
+          companyName={companyName}
+          createdByUid={currentUser.uid}
+          existingEmails={new Set([...members, ...invites].map((m) => (m.email || '').toLowerCase()))}
+          onClose={() => setImportOpen(false)}
+          onImported={() => {
+            refresh();
+            flash('Invites created.');
+          }}
+        />
+      )}
       <InviteLinkDrawer invite={invite} onClose={() => setInvite(null)} />
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
