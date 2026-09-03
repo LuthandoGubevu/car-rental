@@ -104,20 +104,20 @@ service cloud.firestore {
           request.resource.data.createdBy == request.auth.uid)
         ||
         (isAdmin() &&
-          request.resource.data.role == 'driver' &&
+          request.resource.data.role in ['admin', 'driver'] &&
           request.resource.data.companyId == myCompanyId() &&
           request.resource.data.companyName == get(/databases/$(database)/documents/companies/$(myCompanyId())).data.name &&
           request.resource.data.status == 'pending' &&
           request.resource.data.createdBy == request.auth.uid);
 
-      // Revoke (staff: any invite; admin: their own company's driver
-      // invites) or accept (the invitee themselves, exactly once).
+      // Revoke (staff: any invite; admin: their own company's admin or
+      // driver invites) or accept (the invitee themselves, exactly once).
       allow update: if
         (isStaff() &&
           resource.data.status == 'pending' &&
           request.resource.data.status == 'revoked')
         ||
-        (isAdmin() && resource.data.companyId == myCompanyId() && resource.data.role == 'driver' &&
+        (isAdmin() && resource.data.companyId == myCompanyId() &&
           resource.data.status == 'pending' &&
           request.resource.data.status == 'revoked')
         ||

@@ -17,6 +17,7 @@ import { Vehicles } from './pages/admin/Vehicles';
 import { ReviewQueue } from './pages/admin/ReviewQueue';
 import { Outcomes } from './pages/admin/Outcomes';
 import { Incidents } from './pages/admin/Incidents';
+import { Drivers } from './pages/admin/Drivers';
 import { Team } from './pages/admin/Team';
 import { ConsoleLayout } from './pages/console/ConsoleLayout';
 import { ConsoleOverview } from './pages/console/ConsoleOverview';
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="queue" element={<ReviewQueue />} />
         <Route path="outcomes" element={<Outcomes />} />
         <Route path="incidents" element={<Incidents />} />
+        <Route path="drivers" element={<Drivers />} />
         <Route path="team" element={<Team />} />
       </Route>
 

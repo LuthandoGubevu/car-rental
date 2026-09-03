@@ -12,10 +12,10 @@ function formatDate(ts) {
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export function Team() {
+export function Drivers() {
   const { user: currentUser, profile } = useAuth();
   const companyId = profile?.companyId;
-  const [admins, setAdmins] = useState([]);
+  const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
   const [companyName, setCompanyName] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -27,8 +27,8 @@ export function Team() {
 
   function refresh() {
     if (!companyId) return;
-    listCompanyUsers(companyId).then((all) => setAdmins(all.filter((m) => m.role === 'admin')));
-    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'admin')));
+    listCompanyUsers(companyId).then((all) => setMembers(all.filter((m) => m.role === 'driver')));
+    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'driver')));
   }
 
   useEffect(refresh, [companyId]);
@@ -42,7 +42,7 @@ export function Team() {
     setBusy(true);
     try {
       const inviteId = await createInvite(
-        { role: 'admin', companyId, companyName, email: draft.email },
+        { role: 'driver', companyId, companyName, email: draft.email },
         currentUser.uid
       );
       setDraft({ name: '', email: '' });
@@ -52,7 +52,7 @@ export function Team() {
       setInvite({
         link: `${window.location.origin}/accept-invite/${inviteId}`,
         label: draft.name.trim() || draft.email.trim(),
-        roleLabel: 'Admin',
+        roleLabel: 'Driver',
       });
     } catch {
       flash('We could not create this invite.', 'error');
@@ -61,15 +61,11 @@ export function Team() {
     }
   }
 
-  async function removeAdminAccess(admin) {
-    if (admin.uid === currentUser.uid) {
-      flash('You cannot remove your own admin access.', 'error');
-      return;
-    }
-    setBusyRow(admin.uid);
+  async function makeAdmin(member) {
+    setBusyRow(member.uid);
     try {
-      await setUserRole(admin.uid, 'driver');
-      flash(`${admin.email} is now a driver.`);
+      await setUserRole(member.uid, 'admin');
+      flash(`${member.email} is now an admin.`);
       refresh();
     } catch {
       flash('We could not update this account.', 'error');
@@ -92,18 +88,18 @@ export function Team() {
   }
 
   const rows = [
-    ...admins.map((m) => ({ kind: 'member', ...m })),
+    ...members.map((m) => ({ kind: 'member', ...m })),
     ...invites.map((i) => ({ kind: 'invite', ...i })),
   ];
 
   return (
     <div className="page">
-      <h1>Team</h1>
-      <p className="page-sub">Your company's fleet administrators</p>
+      <h1>Drivers</h1>
+      <p className="page-sub">Everyone submitting condition checks for your fleet</p>
 
       <div className="toolbar">
         <div className="toolbar-spacer" />
-        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a co-admin'}</button>
+        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a driver'}</button>
       </div>
 
       {formOpen && (
@@ -126,8 +122,8 @@ export function Team() {
                   <td><StatusChip status="Active" /></td>
                   <td className="dim">{formatDate(row.createdAt)}</td>
                   <td>
-                    <button className="btn-danger btn-inline" disabled={busyRow === row.uid} onClick={() => removeAdminAccess(row)}>
-                      Remove admin access
+                    <button className="btn-row-action" disabled={busyRow === row.uid} onClick={() => makeAdmin(row)}>
+                      Make admin
                     </button>
                   </td>
                 </tr>
@@ -141,7 +137,7 @@ export function Team() {
                     <button
                       className="btn-row-action"
                       disabled={busyRow === row.id}
-                      onClick={() => setInvite({ link: `${window.location.origin}/accept-invite/${row.id}`, label: row.email, roleLabel: 'Admin' })}
+                      onClick={() => setInvite({ link: `${window.location.origin}/accept-invite/${row.id}`, label: row.email, roleLabel: 'Driver' })}
                     >
                       Copy invite link
                     </button>
@@ -155,8 +151,8 @@ export function Team() {
         {rows.length === 0 && (
           <div className="table-empty">
             <div className="table-empty-mark" />
-            <div className="table-empty-title">No other admins yet</div>
-            <div className="table-empty-body">Invite a co-admin if more than one person needs to manage this fleet.</div>
+            <div className="table-empty-title">No drivers yet</div>
+            <div className="table-empty-body">Invite your first driver to get started.</div>
           </div>
         )}
       </div>
