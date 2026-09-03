@@ -1,25 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listVehicles, listSubmissions } from '../../lib/firestore';
+import { listVehicles, listSubmissions, listIncidents } from '../../lib/firestore';
 
 export function Overview() {
   const [vehicles, setVehicles] = useState([]);
   const [submissions, setSubmissions] = useState([]);
+  const [incidents, setIncidents] = useState([]);
 
   useEffect(() => {
     listVehicles().then(setVehicles);
     listSubmissions().then(setSubmissions);
+    listIncidents().then(setIncidents);
   }, []);
 
   const awaiting = submissions.filter((s) => s.status === 'Awaiting Review').length;
   const declined = submissions.filter((s) => s.status === 'Declined').length;
   const inspectionDue = vehicles.filter((v) => v.status === 'Inspection Due').length;
+  const unreviewedIncidents = incidents.filter((i) => i.status === 'Logged').length;
 
   const stats = [
     ['Vehicles in fleet', vehicles.length],
     ['Awaiting review', awaiting],
     ['Declined', declined],
     ['Inspection due', inspectionDue],
+    ['Unreviewed incidents', unreviewedIncidents],
   ];
 
   return (

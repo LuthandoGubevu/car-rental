@@ -27,7 +27,7 @@ export function ReportIncident() {
       await createIncident({ uid: user.uid, driverName: profile?.name, vehicle, ...form });
       setForm({ type: TYPES[0], description: '', date: '' });
       listIncidentsForDriver(user.uid).then(setIncidents);
-      flash('Incident logged. Your fleet team has been notified.');
+      flash("Incident logged. It will appear on your fleet team's dashboard.");
     } catch {
       flash('We could not log this incident. Please try again.', 'error');
     } finally {

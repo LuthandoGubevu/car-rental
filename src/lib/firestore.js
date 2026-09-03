@@ -174,3 +174,16 @@ export async function listIncidentsForDriver(uid) {
   );
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
+
+export async function listIncidents() {
+  const snap = await getDocs(query(collection(db, 'incidents'), orderBy('createdAt', 'desc')));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function markIncidentReviewed(id, reviewedBy) {
+  return updateDoc(doc(db, 'incidents', id), {
+    status: 'Reviewed',
+    reviewedBy,
+    reviewedAt: serverTimestamp(),
+  });
+}

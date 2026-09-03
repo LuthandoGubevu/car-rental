@@ -15,6 +15,7 @@ import { Overview } from './pages/admin/Overview';
 import { Vehicles } from './pages/admin/Vehicles';
 import { ReviewQueue } from './pages/admin/ReviewQueue';
 import { Outcomes } from './pages/admin/Outcomes';
+import { Incidents } from './pages/admin/Incidents';
 import { Team } from './pages/admin/Team';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="vehicles" element={<Vehicles />} />
         <Route path="queue" element={<ReviewQueue />} />
         <Route path="outcomes" element={<Outcomes />} />
+        <Route path="incidents" element={<Incidents />} />
         <Route path="team" element={<Team />} />
       </Route>
 
