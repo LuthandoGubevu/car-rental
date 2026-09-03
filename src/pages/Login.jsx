@@ -30,7 +30,7 @@ export function Login() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="brand-mark">Vehicle Condition Check</div>
+        <div className="brand-mark">Car Care</div>
         <h1>Sign in</h1>
         <p className="auth-sub">Submit your monthly vehicle condition check or review submissions.</p>
         <form onSubmit={handleSubmit}>

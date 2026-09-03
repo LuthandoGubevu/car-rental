@@ -16,7 +16,7 @@ export function AdminLayout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="brand-mark">Fleet Console</div>
+        <div className="brand-mark">Car Care Fleet Console</div>
         <nav className="app-nav">
           {NAV.map(([to, label]) => (
             <NavLink key={to} to={to} end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>

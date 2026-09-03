@@ -50,7 +50,7 @@ export function Signup() {
   return (
     <div className="auth-screen">
       <div className="auth-card auth-card-wide">
-        <div className="brand-mark">Vehicle Condition Check</div>
+        <div className="brand-mark">Car Care</div>
         <h1>Register as a driver</h1>
         <p className="auth-sub">Used to sign in and to identify you on your monthly condition check.</p>
         <form onSubmit={handleSubmit}>

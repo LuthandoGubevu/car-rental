@@ -15,7 +15,7 @@ export function CustomerLayout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="brand-mark">Vehicle Condition Check</div>
+        <div className="brand-mark">Car Care</div>
         <nav className="app-nav">
           {NAV.map(([to, label]) => (
             <NavLink key={to} to={to} end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>

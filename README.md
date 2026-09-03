@@ -1,4 +1,4 @@
-# Vehicle Condition Check
+# Car Care
 
 A monthly vehicle condition check tool for a car rental/lease fleet. Drivers
 photograph their vehicle from four angles and flag any new damage; the fleet
