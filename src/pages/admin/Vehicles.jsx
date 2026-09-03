@@ -4,6 +4,7 @@ import { listVehicles, addVehicle, findUserByEmail } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
+import { VehicleImportDrawer } from './VehicleImportDrawer';
 
 const STATUSES = ['Active Lease', 'Available', 'Inspection Due', 'Under Review', 'Maintenance', 'Accident Repair', 'Returned', 'Sold'];
 
@@ -18,6 +19,7 @@ export function Vehicles() {
   const [formOpen, setFormOpen] = useState(false);
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [busy, setBusy] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [toast, flash] = useFlash();
 
   function refresh() {
@@ -73,6 +75,7 @@ export function Vehicles() {
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <div className="toolbar-spacer" />
+        <button className="btn-secondary" onClick={() => setImportOpen(true)}>Import from file</button>
         <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Add vehicle'}</button>
       </div>
 
@@ -114,6 +117,17 @@ export function Vehicles() {
           </div>
         )}
       </div>
+      {importOpen && (
+        <VehicleImportDrawer
+          companyId={companyId}
+          existingVehicles={vehicles}
+          onClose={() => setImportOpen(false)}
+          onImported={() => {
+            refresh();
+            flash('Vehicles imported.');
+          }}
+        />
+      )}
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

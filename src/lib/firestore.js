@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
@@ -56,6 +57,31 @@ export async function addVehicle(data) {
 
 export async function updateVehicle(id, data) {
   return updateDoc(doc(db, 'vehicles', id), data);
+}
+
+// Bulk onboarding import - same shape/defaults as addVehicle, chunked into
+// batches of 400 (Firestore's write-batch limit is 500) so a fleet's worth
+// of vehicles can be created in a handful of round trips instead of one
+// write per row.
+export async function bulkAddVehicles(rows, companyId) {
+  const ids = [];
+  for (let i = 0; i < rows.length; i += 400) {
+    const chunk = rows.slice(i, i + 400);
+    const batch = writeBatch(db);
+    const refs = chunk.map(() => doc(collection(db, 'vehicles')));
+    chunk.forEach((data, idx) => {
+      batch.set(refs[idx], {
+        ...data,
+        companyId,
+        status: data.status || 'Available',
+        condition: data.condition || 'Not yet assessed',
+        createdAt: serverTimestamp(),
+      });
+    });
+    await batch.commit();
+    ids.push(...refs.map((r) => r.id));
+  }
+  return ids;
 }
 
 export async function findUserByEmail(email, companyId) {
