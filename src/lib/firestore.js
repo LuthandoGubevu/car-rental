@@ -187,3 +187,35 @@ export async function markIncidentReviewed(id, reviewedBy) {
     reviewedAt: serverTimestamp(),
   });
 }
+
+// --- Demo requests ---
+// Submitted from the public landing page by visitors who are never signed
+// in, so this is the one write path in the app with no auth requirement at
+// all - see the "New" status: it's set client-side but pinned by the rules
+// so a request can't arrive pre-marked as handled.
+
+export async function createDemoRequest({ name, company, email, phone, fleetSize, message }) {
+  return addDoc(collection(db, 'demoRequests'), {
+    name,
+    company,
+    email,
+    phone: phone || '',
+    fleetSize: fleetSize || '',
+    message: message || '',
+    status: 'New',
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function listDemoRequests() {
+  const snap = await getDocs(query(collection(db, 'demoRequests'), orderBy('createdAt', 'desc')));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function markDemoRequestContacted(id, contactedBy) {
+  return updateDoc(doc(db, 'demoRequests', id), {
+    status: 'Contacted',
+    contactedBy,
+    contactedAt: serverTimestamp(),
+  });
+}

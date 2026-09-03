@@ -2,11 +2,11 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV = [
-  ['/', 'Dashboard'],
-  ['/history', 'Inspection History'],
-  ['/vehicle', 'Vehicle Details'],
-  ['/incident', 'Report an Incident'],
-  ['/help', 'Help and Support'],
+  ['/dashboard', 'Dashboard'],
+  ['/dashboard/history', 'Inspection History'],
+  ['/dashboard/vehicle', 'Vehicle Details'],
+  ['/dashboard/incident', 'Report an Incident'],
+  ['/dashboard/help', 'Help and Support'],
 ];
 
 export function CustomerLayout() {

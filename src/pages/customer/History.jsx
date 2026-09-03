@@ -40,7 +40,7 @@ export function History() {
                   <td>{s.ref}</td>
                   <td>{s.vehicle} · {s.reg}</td>
                   <td><StatusChip status={s.status} /></td>
-                  <td>{s.status === 'Declined' && <Link to="/check" className="btn-secondary btn-inline">Submit again</Link>}</td>
+                  <td>{s.status === 'Declined' && <Link to="/dashboard/check" className="btn-secondary btn-inline">Submit again</Link>}</td>
                 </tr>
                 {s.status === 'Declined' && (
                   <tr>

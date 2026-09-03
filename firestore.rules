@@ -47,5 +47,17 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.driverUid == request.auth.uid;
       allow update: if isAdmin();
     }
+
+    // Submitted from the public landing page - the one collection with no
+    // isSignedIn() requirement, since a prospect filling this in was never
+    // asked to create an account. status is pinned to 'New' so a request
+    // can't arrive pre-marked as handled.
+    match /demoRequests/{id} {
+      allow read, update: if isAdmin();
+      allow create: if request.resource.data.status == 'New' &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 &&
+        request.resource.data.company is string && request.resource.data.company.size() > 0 &&
+        request.resource.data.email is string && request.resource.data.email.size() > 0;
+    }
   }
 }

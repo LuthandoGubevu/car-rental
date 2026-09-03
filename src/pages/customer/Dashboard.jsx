@@ -57,7 +57,7 @@ export function Dashboard() {
             </ul>
           )}
           {latestSubmission.declineNotes && <p className="muted">{latestSubmission.declineNotes}</p>}
-          <Link to="/check" className="btn-primary btn-inline">Submit again</Link>
+          <Link to="/dashboard/check" className="btn-primary btn-inline">Submit again</Link>
         </div>
       )}
 
@@ -73,7 +73,7 @@ export function Dashboard() {
           <p className={due ? 'due-banner' : 'ok-banner'}>
             {due ? 'Your monthly condition check is due.' : 'You are up to date on your condition check.'}
           </p>
-          <Link to="/check" className="btn-primary btn-inline">Start Vehicle Condition Check</Link>
+          <Link to="/dashboard/check" className="btn-primary btn-inline">Start Vehicle Condition Check</Link>
         </div>
       )}
     </div>

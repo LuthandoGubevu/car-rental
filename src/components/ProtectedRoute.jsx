@@ -20,7 +20,7 @@ export function ProtectedRoute({ role, children }) {
   }
 
   if (role && userRole !== role) {
-    return <Navigate to={userRole === 'admin' ? '/admin' : '/'} replace />;
+    return <Navigate to={userRole === 'admin' ? '/admin' : '/dashboard'} replace />;
   }
   return children;
 }

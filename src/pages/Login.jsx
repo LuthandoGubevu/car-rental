@@ -19,7 +19,7 @@ export function Login() {
     setError(null);
     try {
       await signIn(email.trim(), password);
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch {
       setError('We could not sign you in with those details. Please try again.');
     } finally {

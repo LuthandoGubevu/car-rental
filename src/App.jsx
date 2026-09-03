@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { CustomerLayout } from './pages/customer/CustomerLayout';
@@ -16,15 +17,17 @@ import { Vehicles } from './pages/admin/Vehicles';
 import { ReviewQueue } from './pages/admin/ReviewQueue';
 import { Outcomes } from './pages/admin/Outcomes';
 import { Incidents } from './pages/admin/Incidents';
+import { DemoRequests } from './pages/admin/DemoRequests';
 import { Team } from './pages/admin/Team';
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      <Route path="/" element={<ProtectedRoute role="customer"><CustomerLayout /></ProtectedRoute>}>
+      <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerLayout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="check" element={<VehicleCheck />} />
         <Route path="history" element={<History />} />
@@ -40,6 +43,7 @@ export default function App() {
         <Route path="queue" element={<ReviewQueue />} />
         <Route path="outcomes" element={<Outcomes />} />
         <Route path="incidents" element={<Incidents />} />
+        <Route path="demo-requests" element={<DemoRequests />} />
         <Route path="team" element={<Team />} />
       </Route>
 

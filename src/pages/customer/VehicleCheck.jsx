@@ -64,7 +64,7 @@ export function VehicleCheck() {
         photos: urls,
         damage: reportDamage ? damage : null,
       });
-      navigate('/history', { state: { justSubmitted: ref } });
+      navigate('/dashboard/history', { state: { justSubmitted: ref } });
     } catch {
       setError('We could not submit your condition check. Please check your connection and try again.');
     } finally {

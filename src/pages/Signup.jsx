@@ -37,7 +37,7 @@ export function Signup() {
     setError(null);
     try {
       await signUp({ ...form, password });
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err?.code === 'auth/email-already-in-use'
         ? 'An account with that email already exists.'

@@ -7,6 +7,7 @@ const NAV = [
   ['/admin/queue', 'Review Queue'],
   ['/admin/outcomes', 'Outcomes'],
   ['/admin/incidents', 'Incidents'],
+  ['/admin/demo-requests', 'Demo Requests'],
   ['/admin/team', 'Team'],
 ];
 

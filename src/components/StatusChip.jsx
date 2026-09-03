@@ -5,6 +5,8 @@ const STYLES = {
   Submitted: { bg: '#DBEAFE', fg: '#1D4ED8' },
   Missed: { bg: '#F1F5F9', fg: '#475569' },
   Logged: { bg: '#FEF3C7', fg: '#92400E' },
+  New: { bg: '#FFF1E6', fg: '#B45309' },
+  Contacted: { bg: '#DCFCE7', fg: '#15803D' },
   'Active Lease': { bg: '#DCFCE7', fg: '#15803D' },
   Available: { bg: '#DBEAFE', fg: '#1D4ED8' },
   'Inspection Due': { bg: '#FFF1E6', fg: '#B45309' },
