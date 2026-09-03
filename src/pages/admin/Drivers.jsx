@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { listCompanyUsers, listCompanyInvites, createInvite, revokeInvite, setUserRole, getCompany } from '../../lib/firestore';
+import { listCompanyUsers, listCompanyInvites, createInvite, revokeInvite, getCompany } from '../../lib/firestore';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 import { StatusChip } from '../../components/StatusChip';
@@ -61,19 +61,6 @@ export function Drivers() {
     }
   }
 
-  async function makeAdmin(member) {
-    setBusyRow(member.uid);
-    try {
-      await setUserRole(member.uid, 'admin');
-      flash(`${member.email} is now an admin.`);
-      refresh();
-    } catch {
-      flash('We could not update this account.', 'error');
-    } finally {
-      setBusyRow(null);
-    }
-  }
-
   async function cancelInvite(inv) {
     setBusyRow(inv.id);
     try {
@@ -121,11 +108,7 @@ export function Drivers() {
                   <td>{row.email}</td>
                   <td><StatusChip status="Active" /></td>
                   <td className="dim">{formatDate(row.createdAt)}</td>
-                  <td>
-                    <button className="btn-row-action" disabled={busyRow === row.uid} onClick={() => makeAdmin(row)}>
-                      Make admin
-                    </button>
-                  </td>
+                  <td></td>
                 </tr>
               ) : (
                 <tr key={row.id}>
