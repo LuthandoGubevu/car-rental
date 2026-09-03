@@ -128,6 +128,20 @@ export function Landing() {
         </div>
       </section>
 
+      <section className="landing-section">
+        <h2 className="landing-section-title">See it in action</h2>
+        <div className="landing-shots-grid">
+          <div className="landing-shot">
+            <img src="/screenshots/admin-preview.png" alt="Car Care fleet console showing the review queue, vehicle count and recent submissions" loading="lazy" />
+            <p className="landing-shot-caption">Your fleet team's dashboard</p>
+          </div>
+          <div className="landing-shot">
+            <img src="/screenshots/customer-preview.png" alt="Car Care driver app showing a vehicle's condition check status and quick actions" loading="lazy" />
+            <p className="landing-shot-caption">Your drivers' app</p>
+          </div>
+        </div>
+      </section>
+
       <section id="book-demo" className="landing-section landing-demo">
         <h2 className="landing-section-title">Book a demo</h2>
         <p className="muted landing-demo-sub">
