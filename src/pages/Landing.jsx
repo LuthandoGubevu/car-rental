@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useMobileNav } from '../lib/useMobileNav';
 import { createDemoRequest } from '../lib/firestore';
+
+const LANDING_NAV = [
+  ['#how-it-works', 'How it works'],
+  ['#pricing', 'Pricing'],
+  ['#book-demo', 'Book a demo'],
+];
 
 const DRIVER_STEPS = [
   ['Sign in each month', "A driver gets a reminder when their monthly check is due and signs in with their own account."],
@@ -28,6 +35,7 @@ const FLEET_SIZES = ['1–25 vehicles', '26–100 vehicles', '101–300 vehicles
 
 export function Landing() {
   const { user, role } = useAuth();
+  const { open, toggle, close } = useMobileNav();
   const [form, setForm] = useState({ name: '', company: '', email: '', phone: '', fleetSize: '', branches: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -65,8 +73,22 @@ export function Landing() {
     <div className="landing">
       <header className="landing-header">
         <div className="brand-mark landing-brand">Car Care</div>
+        <nav className="landing-nav">
+          {LANDING_NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+        </nav>
         <Link to={accountLink} className="btn-secondary">{accountLabel}</Link>
+        <button className="hamburger-btn" onClick={toggle} aria-label="Toggle navigation">
+          <span /><span /><span />
+        </button>
       </header>
+
+      {open && <div className="sidebar-scrim" onClick={close} />}
+      <nav className={open ? 'landing-mobile-nav mobile-open' : 'landing-mobile-nav'}>
+        {LANDING_NAV.map(([href, label]) => (
+          <a key={href} href={href} onClick={close}>{label}</a>
+        ))}
+        <Link to={accountLink} className="btn-primary btn-inline" onClick={close}>{accountLabel}</Link>
+      </nav>
 
       <section className="landing-hero">
         <p className="landing-eyebrow">For car rental &amp; lease fleets</p>
@@ -143,7 +165,7 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="landing-section landing-section-alt">
+      <section id="pricing" className="landing-section landing-section-alt">
         <h2 className="landing-section-title">Simple, per-vehicle pricing</h2>
         <p className="muted landing-demo-sub">
           From R42–R89 per vehicle/month, depending on fleet size.

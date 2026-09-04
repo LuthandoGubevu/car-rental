@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useMobileNav } from '../../lib/useMobileNav';
 
 const NAV = [
   ['/dashboard', 'Dashboard'],
@@ -27,10 +28,12 @@ function useCrumbLeaf() {
 export function CustomerLayout() {
   const { profile, signOut } = useAuth();
   const crumbLeaf = useCrumbLeaf();
+  const { open, toggle, close } = useMobileNav();
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
+      {open && <div className="sidebar-scrim" onClick={close} />}
+      <aside className={open ? 'app-sidebar mobile-open' : 'app-sidebar'}>
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
@@ -62,6 +65,9 @@ export function CustomerLayout() {
 
       <div className="app-body">
         <header className="app-header">
+          <button className="hamburger-btn" onClick={toggle} aria-label="Toggle navigation">
+            <span /><span /><span />
+          </button>
           <div className="crumb">
             <span>Driver app</span>
             <span className="crumb-sep">/</span>

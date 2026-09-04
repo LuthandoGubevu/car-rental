@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useMobileNav } from '../../lib/useMobileNav';
 import { listCompanies, listDemoRequests } from '../../lib/firestore';
 
 const NAV = [
@@ -39,10 +40,12 @@ export function ConsoleLayout() {
   const { newDemoRequests } = useConsoleCounts();
   const badges = { '/console/demo-requests': newDemoRequests };
   const crumbLeaf = useCrumbLeaf();
+  const { open, toggle, close } = useMobileNav();
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
+      {open && <div className="sidebar-scrim" onClick={close} />}
+      <aside className={open ? 'app-sidebar mobile-open' : 'app-sidebar'}>
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
@@ -75,6 +78,9 @@ export function ConsoleLayout() {
 
       <div className="app-body">
         <header className="app-header">
+          <button className="hamburger-btn" onClick={toggle} aria-label="Toggle navigation">
+            <span /><span /><span />
+          </button>
           <div className="crumb">
             <span>Staff console</span>
             <span className="crumb-sep">/</span>

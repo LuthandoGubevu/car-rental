@@ -497,6 +497,33 @@ textarea {
 .crumb-sep { color: #c3cbd4; }
 .crumb-leaf { color: #10202e; font-weight: 500; }
 .header-spacer { flex: 1; }
+
+/* ── Hamburger + off-canvas sidebar (mobile/tablet) ──── */
+
+.hamburger-btn {
+  display: none;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-ctl);
+  background: var(--card-bg);
+  cursor: pointer;
+  padding: 0;
+}
+.hamburger-btn span { width: 16px; height: 2px; border-radius: 1px; background: var(--ink-900); }
+
+.sidebar-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 69;
+  background: rgba(11, 28, 43, 0.42);
+  backdrop-filter: blur(2px);
+}
 .app-main { flex: 1; }
 
 /* ── Cards ──────────────────────────────────────────── */
@@ -1088,10 +1115,45 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   padding: 20px 32px;
 }
 
 .landing-brand { margin: 0; font-size: 20px; text-transform: none; letter-spacing: normal; }
+
+.landing-nav { display: flex; align-items: center; gap: 28px; }
+.landing-nav a { font-size: 14px; font-weight: 600; color: var(--ink-900); text-decoration: none; }
+.landing-nav a:hover { color: var(--navy-600); text-decoration: none; }
+
+.landing-mobile-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  max-width: 84vw;
+  z-index: 70;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 22px;
+  transform: translateX(-100%);
+  transition: transform 0.22s ease-out;
+}
+.landing-mobile-nav.mobile-open {
+  transform: translateX(0);
+  box-shadow: 24px 0 60px -30px rgba(11, 28, 43, 0.7);
+}
+.landing-mobile-nav a {
+  padding: 12px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-900);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.landing-mobile-nav .btn-primary { margin-top: 16px; }
 
 .landing-hero {
   background: linear-gradient(180deg, var(--navy) 0%, var(--navy-900) 100%);
@@ -1286,23 +1348,44 @@ textarea {
 /* ── Responsive ─────────────────────────────────────── */
 
 @media (max-width: 1080px) {
+  .landing-nav { display: none; }
   .overview-grid { grid-template-columns: 1fr; }
-  .table-card { overflow-x: auto; }
-  .app-sidebar { width: 72px; flex: 0 0 72px; padding: 18px 10px 14px; }
-  .sidebar-brand-name,
-  .sidebar-brand-sub,
-  .sidebar-group,
-  .nav-link span:not(.nav-badge),
-  .sidebar-link,
-  .sidebar-user > div,
-  .sidebar-signout { display: none; }
-  .nav-link { justify-content: center; }
-  .sidebar-user { justify-content: center; padding: 6px; }
+  .table-card {
+    overflow-x: auto;
+    background:
+      linear-gradient(to right, var(--card-bg) 30%, rgba(255, 255, 255, 0)),
+      linear-gradient(to right, rgba(255, 255, 255, 0), var(--card-bg) 70%) 100% 0,
+      linear-gradient(to right, rgba(11, 28, 43, 0.12), rgba(255, 255, 255, 0)),
+      linear-gradient(to left, rgba(11, 28, 43, 0.12), rgba(255, 255, 255, 0)) 100% 0;
+    background-repeat: no-repeat;
+    background-color: var(--card-bg);
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+  .hamburger-btn { display: flex; }
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 252px;
+    flex: 0 0 auto;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease-out;
+  }
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 24px 0 60px -30px rgba(11, 28, 43, 0.7);
+  }
 }
 
 @media (max-width: 720px) {
   .page { padding: 20px 16px 56px; }
   .app-header { padding: 0 16px; }
+  .search-field,
+  .toolbar input,
+  .toolbar select { min-width: 0; width: 100%; }
   .form-grid,
   .card-actions-grid,
   .review-grid,

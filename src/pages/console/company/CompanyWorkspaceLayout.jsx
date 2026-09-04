@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useMobileNav } from '../../../lib/useMobileNav';
 import { getCompany, listCompanies, listSubmissions, listIncidents } from '../../../lib/firestore';
 
 const NAV = [
@@ -43,6 +44,7 @@ export function CompanyWorkspaceLayout() {
   const [company, setCompany] = useState(null);
   const [companies, setCompanies] = useState([]);
   const { awaiting, openIncidents } = useCompanyCounts(companyId);
+  const { open, toggle, close } = useMobileNav();
 
   useEffect(() => {
     if (companyId) getCompany(companyId).then(setCompany);
@@ -68,7 +70,8 @@ export function CompanyWorkspaceLayout() {
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
+      {open && <div className="sidebar-scrim" onClick={close} />}
+      <aside className={open ? 'app-sidebar mobile-open' : 'app-sidebar'}>
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
@@ -108,6 +111,9 @@ export function CompanyWorkspaceLayout() {
 
       <div className="app-body">
         <header className="app-header">
+          <button className="hamburger-btn" onClick={toggle} aria-label="Toggle navigation">
+            <span /><span /><span />
+          </button>
           <div className="crumb">
             <span>Staff console</span>
             <span className="crumb-sep">/</span>

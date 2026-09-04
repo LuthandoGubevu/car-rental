@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useMobileNav } from '../../lib/useMobileNav';
 import { listIncidents } from '../../lib/firestore';
 
 const NAV = [
@@ -42,10 +43,12 @@ export function AdminLayout() {
   const { openIncidents } = useAdminCounts(profile?.companyId);
   const badges = { '/admin/incidents': openIncidents };
   const crumbLeaf = useCrumbLeaf();
+  const { open, toggle, close } = useMobileNav();
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
+      {open && <div className="sidebar-scrim" onClick={close} />}
+      <aside className={open ? 'app-sidebar mobile-open' : 'app-sidebar'}>
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
@@ -78,6 +81,9 @@ export function AdminLayout() {
 
       <div className="app-body">
         <header className="app-header">
+          <button className="hamburger-btn" onClick={toggle} aria-label="Toggle navigation">
+            <span /><span /><span />
+          </button>
           <div className="crumb">
             <span>Fleet console</span>
             <span className="crumb-sep">/</span>
