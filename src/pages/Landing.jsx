@@ -5,22 +5,22 @@ import { createDemoRequest } from '../lib/firestore';
 
 const DRIVER_STEPS = [
   ['Sign in each month', "A driver gets a reminder when their monthly check is due and signs in with their own account."],
-  ['Take 4 live photos', 'The app opens the camera directly and guides them through front, left, rear, and right — no gallery uploads, so photos can’t be old or unrelated.'],
-  ['Flag any new damage', 'Type, area, description, date, and whether it was their fault — optional, only shown if something needs reporting.'],
+  ['Take 4 live photos', 'The app opens the camera directly and guides them through front, left, rear, and right. No gallery uploads, so photos can’t be old or unrelated.'],
+  ['Flag any new damage', 'Type, area, description, date, and whether it was their fault. This is optional and only shown if something needs reporting.'],
   ['Submit and get a verdict', 'Approved, or declined with specific reasons the driver can see and act on immediately.'],
 ];
 
 const FLEET_STEPS = [
-  ['We review every submission', 'Our own compliance team checks all 4 photos and any damage report against your fleet records — not a queue dumped on your staff.'],
-  ['Every decision comes with reasons', "Approved, or declined with a specific, visible reason — blurry photo, wrong angle, doesn't match the vehicle. No black box, and no verdict your team has to make themselves."],
+  ['We review every submission', "Our own compliance team checks all 4 photos and any damage report against your fleet records. It's never a queue dumped on your staff."],
+  ['Every decision comes with reasons', "Approved, or declined with a specific, visible reason: blurry photo, wrong angle, doesn't match the vehicle. No black box, and no verdict your team has to make themselves."],
   ['Drivers see it and resubmit', 'No dead end: a decline shows the driver exactly what to fix, with a direct link to submit again.'],
-  ['One clear Fleet Status report', 'See exactly where every vehicle stands — up to date, overdue, or flagged — plus every driver-reported incident, already triaged by us.'],
+  ['One clear Fleet Status report', 'See exactly where every vehicle stands: up to date, overdue, or flagged, plus every driver-reported incident, already triaged by us.'],
 ];
 
 const FEATURES = [
-  ['Built for the whole lease, not just the ends', 'Most rental tools check a vehicle at pickup and return. Car Care checks in every month, while the lease is still running — catching problems while they’re still small.'],
+  ['Built for the whole lease, not just the ends', 'Most rental tools check a vehicle at pickup and return. Car Care checks in every month, while the lease is still running, catching problems while they’re still small.'],
   ['Camera-locked, not gallery-uploaded', 'Drivers can’t submit an old or unrelated photo. The app takes over the camera directly, so every submission is verifiably current.'],
-  ['Reviewed by people, not your team', 'No opaque AI verdict, and no review queue landing on your staff either. Our own compliance team checks every submission and gives clear, visible reasons for every decision — the kind of transparency that keeps disputes from turning into arguments.'],
+  ['Reviewed by people, not your team', 'No opaque AI verdict, and no review queue landing on your staff either. Our own compliance team checks every submission and gives clear, visible reasons for every decision. That kind of transparency keeps disputes from turning into arguments.'],
   ['Priced and built for South African fleets', 'Not a global enterprise platform retrofitted for a small fleet. Car Care is sized and priced for how South African rental and lease companies actually operate.'],
 ];
 
@@ -73,9 +73,9 @@ export function Landing() {
         <h1 className="landing-h1">The monthly vehicle check your fleet is missing</h1>
         <p className="landing-lead">
           Between pickup and return, most rental and lease companies never actually see the vehicle again.
-          Car Care gives drivers a simple monthly photo check-in, and gives you a compliance report reviewed
-          by our own team — not another queue for yours — so damage, disputes, and overdue inspections stop
-          hiding for months at a time.
+          Car Care gives drivers a simple monthly photo check-in and hands you a compliance report reviewed
+          by our own team, not another queue for yours. Damage, disputes, and overdue inspections stop hiding
+          for months at a time.
         </p>
         <div className="landing-cta-row">
           <a href="#book-demo" className="btn-hero-primary btn-inline">Book a demo</a>
@@ -168,7 +168,7 @@ export function Landing() {
 
         {submitted ? (
           <div className="card landing-demo-success">
-            <h3>Thanks — we&apos;ve got it.</h3>
+            <h3>Thanks, we&apos;ve got it.</h3>
             <p className="muted">We&apos;ll be in touch within 1 business day to set up your demo.</p>
           </div>
         ) : (
