@@ -87,11 +87,11 @@ export function Landing() {
         <h2 className="landing-section-title">See it in action</h2>
         <div className="landing-shots-grid">
           <div className="landing-shot">
-            <img src="/screenshots/admin-preview.png" alt="Car Care fleet console showing the review queue, vehicle count and recent submissions" loading="lazy" />
-            <p className="landing-shot-caption">Your fleet team's dashboard</p>
+            <img src="/screenshots/admin-preview.png" alt="Car Care Fleet Status report showing vehicle counts, recent submissions and items needing attention" loading="lazy" />
+            <p className="landing-shot-caption">Your Fleet Status report</p>
           </div>
           <div className="landing-shot">
-            <img src="/screenshots/customer-preview.png" alt="Car Care driver app showing a vehicle's condition check status and quick actions" loading="lazy" />
+            <img src="/screenshots/customer-preview.png" alt="Car Care driver app on a phone, showing a vehicle's condition check status and quick actions" loading="lazy" />
             <p className="landing-shot-caption">Your drivers' app</p>
           </div>
         </div>
