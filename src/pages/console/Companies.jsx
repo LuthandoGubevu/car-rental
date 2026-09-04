@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { listCompanies, listAllVehicles, createCompany, createInvite, updateCompany, listCompanyInvites } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
@@ -147,12 +148,13 @@ export function Companies() {
           <tbody>
             {filtered.map((c) => (
               <tr key={c.id}>
-                <td>{c.name}</td>
+                <td><Link to={`/console/companies/${c.id}`}>{c.name}</Link></td>
                 <td className="dim">{c.primaryAdminUid ? (c.contactEmail || c.contactName || '—') : 'Invite pending'}</td>
                 <td>{vehicleCounts[c.id] || 0}</td>
                 <td><StatusChip status={STATUS_LABEL[c.status] || c.status} /></td>
                 <td className="dim">{formatDate(c.createdAt)}</td>
                 <td>
+                  <Link to={`/console/companies/${c.id}`} className="btn-row-action btn-inline">Manage</Link>
                   {!c.primaryAdminUid && (
                     <button className="btn-row-action" disabled={busyRow === c.id} onClick={() => copyPendingInvite(c)}>Copy invite link</button>
                   )}

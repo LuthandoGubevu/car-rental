@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { listVehicles, listSubmissions, listIncidents } from '../../lib/firestore';
+import { Link, useParams } from 'react-router-dom';
+import { listVehicles, listSubmissions, listIncidents } from '../../../lib/firestore';
 
 function clamp01(n) {
   if (!Number.isFinite(n)) return 0;
@@ -49,8 +48,8 @@ function daysSince(date) {
 }
 
 export function Overview() {
-  const { profile } = useAuth();
-  const companyId = profile?.companyId;
+  const { companyId } = useParams();
+  const base = `/console/companies/${companyId}`;
   const [vehicles, setVehicles] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [incidents, setIncidents] = useState([]);
@@ -134,19 +133,19 @@ export function Overview() {
 
   const attentionRows = [
     awaiting > 0 && {
-      to: '/admin/fleet-status',
+      to: `${base}/queue`,
       dot: '#f47724',
       title: `${awaiting} submission${awaiting === 1 ? '' : 's'} awaiting a verdict`,
-      sub: oldestDays !== null ? `Fleet Status · oldest waiting ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : 'Fleet Status',
+      sub: oldestDays !== null ? `Review queue · oldest waiting ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : 'Review queue',
     },
     inspectionDue > 0 && {
-      to: '/admin/vehicles',
+      to: `${base}/vehicles`,
       dot: '#d99a2b',
       title: `${inspectionDue} vehicle${inspectionDue === 1 ? '' : 's'} due for inspection`,
       sub: 'Vehicles · overdue for a monthly check',
     },
     unreviewedIncidents > 0 && {
-      to: '/admin/incidents',
+      to: `${base}/incidents`,
       dot: '#dc2626',
       title: `${unreviewedIncidents} incident${unreviewedIncidents === 1 ? '' : 's'} awaiting triage`,
       sub: 'Incidents · reported by drivers',
@@ -160,7 +159,7 @@ export function Overview() {
           <h1>Overview</h1>
           <p className="page-sub">Condition checks at a glance</p>
         </div>
-        <Link to="/admin/fleet-status" className="btn-primary">View Fleet Status</Link>
+        <Link to={`${base}/queue`} className="btn-primary">Open review queue</Link>
       </div>
 
       <div className="stat-grid">

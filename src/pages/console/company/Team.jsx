@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { listCompanyUsers, listCompanyInvites, createInvite, revokeInvite, getCompany } from '../../lib/firestore';
-import { useFlash } from '../../lib/useFlash';
-import { Toast } from '../../components/Toast';
-import { StatusChip } from '../../components/StatusChip';
-import { InviteLinkDrawer } from '../../components/InviteLinkDrawer';
-import { InviteImportDrawer } from './InviteImportDrawer';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { listCompanyUsers, listCompanyInvites, createInvite, revokeInvite, setUserRole, getCompany } from '../../../lib/firestore';
+import { useFlash } from '../../../lib/useFlash';
+import { Toast } from '../../../components/Toast';
+import { StatusChip } from '../../../components/StatusChip';
+import { InviteLinkDrawer } from '../../../components/InviteLinkDrawer';
 
 function formatDate(ts) {
   const d = ts?.toDate?.();
@@ -13,10 +13,10 @@ function formatDate(ts) {
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export function Drivers() {
-  const { user: currentUser, profile } = useAuth();
-  const companyId = profile?.companyId;
-  const [members, setMembers] = useState([]);
+export function Team() {
+  const { user: currentUser } = useAuth();
+  const { companyId } = useParams();
+  const [admins, setAdmins] = useState([]);
   const [invites, setInvites] = useState([]);
   const [companyName, setCompanyName] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -24,13 +24,12 @@ export function Drivers() {
   const [busy, setBusy] = useState(false);
   const [busyRow, setBusyRow] = useState(null);
   const [invite, setInvite] = useState(null);
-  const [importOpen, setImportOpen] = useState(false);
   const [toast, flash] = useFlash();
 
   function refresh() {
     if (!companyId) return;
-    listCompanyUsers(companyId).then((all) => setMembers(all.filter((m) => m.role === 'driver')));
-    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'driver')));
+    listCompanyUsers(companyId).then((all) => setAdmins(all.filter((m) => m.role === 'admin')));
+    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'admin')));
   }
 
   useEffect(refresh, [companyId]);
@@ -44,7 +43,7 @@ export function Drivers() {
     setBusy(true);
     try {
       const inviteId = await createInvite(
-        { role: 'driver', companyId, companyName, email: draft.email },
+        { role: 'admin', companyId, companyName, email: draft.email },
         currentUser.uid
       );
       setDraft({ name: '', email: '' });
@@ -54,12 +53,29 @@ export function Drivers() {
       setInvite({
         link: `${window.location.origin}/accept-invite/${inviteId}`,
         label: draft.name.trim() || draft.email.trim(),
-        roleLabel: 'Driver',
+        roleLabel: 'Admin',
       });
     } catch {
       flash('We could not create this invite.', 'error');
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function removeAdminAccess(admin) {
+    if (admin.uid === currentUser.uid) {
+      flash('You cannot remove your own admin access.', 'error');
+      return;
+    }
+    setBusyRow(admin.uid);
+    try {
+      await setUserRole(admin.uid, 'driver');
+      flash(`${admin.email} is now a driver.`);
+      refresh();
+    } catch {
+      flash('We could not update this account.', 'error');
+    } finally {
+      setBusyRow(null);
     }
   }
 
@@ -77,19 +93,18 @@ export function Drivers() {
   }
 
   const rows = [
-    ...members.map((m) => ({ kind: 'member', ...m })),
+    ...admins.map((m) => ({ kind: 'member', ...m })),
     ...invites.map((i) => ({ kind: 'invite', ...i })),
   ];
 
   return (
     <div className="page">
-      <h1>Drivers</h1>
-      <p className="page-sub">Everyone submitting condition checks for your fleet</p>
+      <h1>Team</h1>
+      <p className="page-sub">This company's fleet administrators</p>
 
       <div className="toolbar">
         <div className="toolbar-spacer" />
-        <button className="btn-secondary" onClick={() => setImportOpen(true)}>Import from file</button>
-        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a driver'}</button>
+        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a co-admin'}</button>
       </div>
 
       {formOpen && (
@@ -111,7 +126,11 @@ export function Drivers() {
                   <td>{row.email}</td>
                   <td><StatusChip status="Active" /></td>
                   <td className="dim">{formatDate(row.createdAt)}</td>
-                  <td></td>
+                  <td>
+                    <button className="btn-danger btn-inline" disabled={busyRow === row.uid} onClick={() => removeAdminAccess(row)}>
+                      Remove admin access
+                    </button>
+                  </td>
                 </tr>
               ) : (
                 <tr key={row.id}>
@@ -123,7 +142,7 @@ export function Drivers() {
                     <button
                       className="btn-row-action"
                       disabled={busyRow === row.id}
-                      onClick={() => setInvite({ link: `${window.location.origin}/accept-invite/${row.id}`, label: row.email, roleLabel: 'Driver' })}
+                      onClick={() => setInvite({ link: `${window.location.origin}/accept-invite/${row.id}`, label: row.email, roleLabel: 'Admin' })}
                     >
                       Copy invite link
                     </button>
@@ -137,26 +156,11 @@ export function Drivers() {
         {rows.length === 0 && (
           <div className="table-empty">
             <div className="table-empty-mark" />
-            <div className="table-empty-title">No drivers yet</div>
-            <div className="table-empty-body">Invite your first driver to get started.</div>
+            <div className="table-empty-title">No other admins yet</div>
+            <div className="table-empty-body">Invite a co-admin if more than one person needs to manage this fleet.</div>
           </div>
         )}
       </div>
-      {importOpen && (
-        <InviteImportDrawer
-          role="driver"
-          roleLabel="Driver"
-          companyId={companyId}
-          companyName={companyName}
-          createdByUid={currentUser.uid}
-          existingEmails={new Set([...members, ...invites].map((m) => (m.email || '').toLowerCase()))}
-          onClose={() => setImportOpen(false)}
-          onImported={() => {
-            refresh();
-            flash('Invites created.');
-          }}
-        />
-      )}
       <InviteLinkDrawer invite={invite} onClose={() => setInvite(null)} />
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>

@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { listSubmissions, listIncidents } from '../../lib/firestore';
+import { listIncidents } from '../../lib/firestore';
 
 const NAV = [
   ['/admin', 'Overview'],
+  ['/admin/fleet-status', 'Fleet Status'],
   ['/admin/vehicles', 'Vehicles'],
-  ['/admin/queue', 'Review queue'],
-  ['/admin/outcomes', 'Outcomes'],
   ['/admin/incidents', 'Incidents'],
-  ['/admin/drivers', 'Drivers'],
-  ['/admin/team', 'Team'],
+  ['/admin/settings', 'Company settings'],
 ];
 
 function initials(name) {
@@ -29,14 +27,11 @@ function useCrumbLeaf() {
 }
 
 function useAdminCounts(companyId) {
-  const [counts, setCounts] = useState({ awaiting: 0, openIncidents: 0 });
+  const [counts, setCounts] = useState({ openIncidents: 0 });
   useEffect(() => {
     if (!companyId) return;
-    Promise.all([listSubmissions(undefined, companyId), listIncidents(companyId)]).then(([subs, incs]) =>
-      setCounts({
-        awaiting: subs.filter((s) => s.status === 'Awaiting Review').length,
-        openIncidents: incs.filter((i) => i.status === 'Logged').length,
-      })
+    listIncidents(companyId).then((incs) =>
+      setCounts({ openIncidents: incs.filter((i) => i.status === 'Logged').length })
     );
   }, [companyId]);
   return counts;
@@ -44,8 +39,8 @@ function useAdminCounts(companyId) {
 
 export function AdminLayout() {
   const { profile, signOut } = useAuth();
-  const { awaiting, openIncidents } = useAdminCounts(profile?.companyId);
-  const badges = { '/admin/queue': awaiting, '/admin/incidents': openIncidents };
+  const { openIncidents } = useAdminCounts(profile?.companyId);
+  const badges = { '/admin/incidents': openIncidents };
   const crumbLeaf = useCrumbLeaf();
 
   return (

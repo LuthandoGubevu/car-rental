@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { findUserByEmail, bulkAddVehicles } from '../../lib/firestore';
+import { findUserByEmail, bulkAddVehicles } from '../../../lib/firestore';
 
 const HEADER_ALIASES = {
   make: 'make',
@@ -190,7 +190,7 @@ export function VehicleImportDrawer({ companyId, existingVehicles, onClose, onIm
             <>
               <p className="muted" style={{ marginBottom: 14 }}>
                 Upload a .csv or .xlsx file with columns for Make, Model, Year, Reg, VIN, Mileage, Branch,
-                and optionally Driver Email (the driver must already have an account in your company).
+                and optionally Driver Email (the driver must already have an account in this company).
               </p>
               <button type="button" className="btn-secondary" onClick={downloadTemplate} style={{ marginBottom: 16 }}>
                 Download template

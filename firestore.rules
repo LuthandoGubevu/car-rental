@@ -62,14 +62,11 @@ service cloud.firestore {
       // Staff can manage any account (support, corrections, promotions).
       allow update: if isStaff();
 
-      // An admin may toggle a teammate's role between admin and driver,
-      // strictly within their own company - never onboard/move someone to
-      // a different company, never touch a staff account.
-      allow update: if isAdmin() &&
-        resource.data.companyId == myCompanyId() &&
-        request.resource.data.companyId == myCompanyId() &&
-        resource.data.role in ['admin', 'driver'] &&
-        request.resource.data.role in ['admin', 'driver'];
+      // Checking moved in-house: role changes are staff-only now (via the
+      // isStaff() branch above). The one thing an admin keeps here is an
+      // internal note on one of their own drivers.
+      allow update: if isAdminOfCompany(resource.data.companyId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminNote']);
     }
 
     match /companies/{companyId} {
@@ -93,31 +90,21 @@ service cloud.firestore {
       // Listing the whole collection is NOT public - that would let it be
       // enumerated - so list is scoped like every other collection.
       allow get: if true;
-      allow list: if isStaff() || (isAdmin() && resource.data.companyId == myCompanyId());
+      allow list: if isStaff();
 
-      allow create: if
-        (isStaff() &&
-          request.resource.data.role == 'admin' &&
-          exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)) &&
-          request.resource.data.companyName == get(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.name &&
-          request.resource.data.status == 'pending' &&
-          request.resource.data.createdBy == request.auth.uid)
-        ||
-        (isAdmin() &&
-          request.resource.data.role in ['admin', 'driver'] &&
-          request.resource.data.companyId == myCompanyId() &&
-          request.resource.data.companyName == get(/databases/$(database)/documents/companies/$(myCompanyId())).data.name &&
-          request.resource.data.status == 'pending' &&
-          request.resource.data.createdBy == request.auth.uid);
+      // Checking moved in-house: staff invites both a client's admins and
+      // its drivers now, so this is the only create branch left.
+      allow create: if isStaff() &&
+        request.resource.data.role in ['admin', 'driver'] &&
+        exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)) &&
+        request.resource.data.companyName == get(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.name &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.createdBy == request.auth.uid;
 
-      // Revoke (staff: any invite; admin: their own company's admin or
-      // driver invites) or accept (the invitee themselves, exactly once).
+      // Revoke: staff only now (an admin no longer manages invites).
+      // Accept: the invitee themselves, exactly once.
       allow update: if
         (isStaff() &&
-          resource.data.status == 'pending' &&
-          request.resource.data.status == 'revoked')
-        ||
-        (isAdmin() && resource.data.companyId == myCompanyId() &&
           resource.data.status == 'pending' &&
           request.resource.data.status == 'revoked')
         ||
@@ -138,16 +125,21 @@ service cloud.firestore {
         resource.data.driverUid == request.auth.uid
       );
 
-      allow create: if isAdmin() && request.resource.data.companyId == myCompanyId();
+      // Checking moved in-house: onboarding a vehicle is staff's job now.
+      allow create: if isStaff() &&
+        exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId));
 
-      allow delete: if isAdminOfCompany(resource.data.companyId);
+      allow delete: if isStaff();
 
-      // A driver submitting a condition check stamps their own vehicle's
-      // lastInspectionAt - allowed, but only that one field, so they can't
-      // touch status, reg, or reassign the vehicle to a different driver.
+      // Staff has full write power (companyId immutable); the client admin
+      // keeps exactly one field - an internal note - and a driver
+      // submitting a condition check stamps their own vehicle's
+      // lastInspectionAt, and only that one field, so they can't touch
+      // status, reg, or reassign the vehicle to a different driver.
       allow update: if
+        (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
         (isAdminOfCompany(resource.data.companyId) &&
-          request.resource.data.companyId == resource.data.companyId) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminNote'])) ||
         (isSignedIn() && resource.data.driverUid == request.auth.uid &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastInspectionAt']));
     }
@@ -164,11 +156,14 @@ service cloud.firestore {
         request.resource.data.companyId == myCompanyId() &&
         request.resource.data.status == 'Awaiting Review';
 
-      // Only the review verdict fields change after creation, and only an
-      // admin of the owning company can move a submission out of Awaiting
-      // Review.
-      allow update: if isAdminOfCompany(resource.data.companyId) &&
-        request.resource.data.companyId == resource.data.companyId;
+      // Checking moved in-house: only staff can move a submission out of
+      // Awaiting Review. The client admin keeps one light action - marking
+      // a flagged submission as seen, without changing its verdict.
+      allow update: if
+        (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
+        (isAdminOfCompany(resource.data.companyId) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy']));
     }
 
     match /incidents/{id} {
@@ -182,8 +177,13 @@ service cloud.firestore {
         request.resource.data.driverUid == request.auth.uid &&
         request.resource.data.companyId == myCompanyId();
 
-      allow update: if isAdminOfCompany(resource.data.companyId) &&
-        request.resource.data.companyId == resource.data.companyId;
+      // Checking moved in-house: only staff resolves an incident. The
+      // client admin keeps one light action - acknowledging it.
+      allow update: if
+        (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
+        (isAdminOfCompany(resource.data.companyId) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy']));
     }
 
     // Submitted from the public landing page - the one collection with no

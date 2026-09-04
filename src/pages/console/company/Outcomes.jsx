@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { listSubmissions } from '../../lib/firestore';
-import { StatusChip } from '../../components/StatusChip';
+import { useParams } from 'react-router-dom';
+import { listSubmissions } from '../../../lib/firestore';
+import { StatusChip } from '../../../components/StatusChip';
 
 function formatDate(ts) {
   const d = ts?.toDate?.();
@@ -10,8 +10,7 @@ function formatDate(ts) {
 }
 
 export function Outcomes() {
-  const { profile } = useAuth();
-  const companyId = profile?.companyId;
+  const { companyId } = useParams();
   const [tab, setTab] = useState('declined');
   const [submissions, setSubmissions] = useState([]);
 

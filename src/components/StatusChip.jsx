@@ -35,6 +35,8 @@ const STYLES = {
   Trial: GROUPS.amber,
   Inactive: GROUPS.grey,
   Invited: GROUPS.amber,
+  'Up to date': GROUPS.green,
+  'Check overdue': GROUPS.amber,
 };
 
 export function StatusChip({ status }) {

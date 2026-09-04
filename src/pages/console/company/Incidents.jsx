@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { listIncidents, acknowledgeIncident } from '../../lib/firestore';
-import { useAuth } from '../../context/AuthContext';
-import { StatusChip } from '../../components/StatusChip';
-import { useFlash } from '../../lib/useFlash';
-import { Toast } from '../../components/Toast';
+import { useParams } from 'react-router-dom';
+import { listIncidents, markIncidentReviewed } from '../../../lib/firestore';
+import { useAuth } from '../../../context/AuthContext';
+import { StatusChip } from '../../../components/StatusChip';
+import { useFlash } from '../../../lib/useFlash';
+import { Toast } from '../../../components/Toast';
 
 function formatDate(ts) {
   const d = ts?.toDate?.();
@@ -13,7 +14,7 @@ function formatDate(ts) {
 
 export function Incidents() {
   const { profile } = useAuth();
-  const companyId = profile?.companyId;
+  const { companyId } = useParams();
   const [tab, setTab] = useState('open');
   const [incidents, setIncidents] = useState([]);
   const [busy, setBusy] = useState(null);
@@ -28,14 +29,14 @@ export function Incidents() {
   const openIncidents = incidents.filter((i) => i.status === 'Logged');
   const visible = tab === 'open' ? openIncidents : incidents;
 
-  async function acknowledge(incident) {
+  async function review(incident) {
     setBusy(incident.id);
     try {
-      await acknowledgeIncident(incident.id, profile?.name);
-      flash(`${incident.ref} acknowledged.`);
+      await markIncidentReviewed(incident.id, profile?.name);
+      flash(`${incident.ref} marked as reviewed.`);
       refresh();
     } catch {
-      flash('We could not acknowledge this incident.', 'error');
+      flash('We could not update this incident.', 'error');
     } finally {
       setBusy(null);
     }
@@ -44,7 +45,7 @@ export function Incidents() {
   return (
     <div className="page">
       <h1>Incidents</h1>
-      <p className="page-sub">Accident, theft, breakdown and damage reports, reviewed by the Car Care team</p>
+      <p className="page-sub">Accident, theft, breakdown and damage reports from drivers</p>
       <div className="toolbar">
         <div className="tabs">
           <button className={tab === 'open' ? 'tab active' : 'tab'} onClick={() => setTab('open')}>
@@ -76,13 +77,9 @@ export function Incidents() {
                 <td><StatusChip status={i.status} /></td>
                 <td>
                   {i.status === 'Logged' && (
-                    i.acknowledgedByAdmin ? (
-                      <span className="dim">Acknowledged</span>
-                    ) : (
-                      <button className="btn-row-action" disabled={busy === i.id} onClick={() => acknowledge(i)}>
-                        {busy === i.id ? 'Acknowledging…' : 'Acknowledge'}
-                      </button>
-                    )
+                    <button className="btn-row-action" disabled={busy === i.id} onClick={() => review(i)}>
+                      {busy === i.id ? 'Marking…' : 'Mark as reviewed'}
+                    </button>
                   )}
                 </td>
               </tr>
@@ -95,7 +92,7 @@ export function Incidents() {
             <div className="table-empty-title">{tab === 'open' ? 'No open incidents' : 'No incidents logged'}</div>
             <div className="table-empty-body">
               {tab === 'open'
-                ? 'Every incident has been reviewed by the Car Care team. New reports land here as drivers log them.'
+                ? 'Every incident has been reviewed. New reports land here as drivers log them.'
                 : 'Reports from drivers will appear here.'}
             </div>
           </div>

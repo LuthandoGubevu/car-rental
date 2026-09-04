@@ -191,6 +191,17 @@ export async function recordVerdict(id, { verdict, reviewedBy, declineReasons, d
   });
 }
 
+// Light action for a client admin: acknowledges a flagged submission
+// without changing its verdict - a "seen it" signal, distinct from staff's
+// actual review.
+export async function acknowledgeSubmission(id, adminName) {
+  return updateDoc(doc(db, 'submissions', id), {
+    acknowledgedByAdmin: true,
+    acknowledgedAt: serverTimestamp(),
+    acknowledgedBy: adminName,
+  });
+}
+
 // --- User preferences ---
 
 export async function updateNotificationPrefs(uid, prefs) {
@@ -237,6 +248,16 @@ export async function markIncidentReviewed(id, reviewedBy) {
     status: 'Reviewed',
     reviewedBy,
     reviewedAt: serverTimestamp(),
+  });
+}
+
+// Light action for a client admin: acknowledges an open incident without
+// resolving it - a "seen it" signal, distinct from staff's actual review.
+export async function acknowledgeIncident(id, adminName) {
+  return updateDoc(doc(db, 'incidents', id), {
+    acknowledgedByAdmin: true,
+    acknowledgedAt: serverTimestamp(),
+    acknowledgedBy: adminName,
   });
 }
 

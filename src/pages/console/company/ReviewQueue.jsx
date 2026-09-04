@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { listSubmissions, recordVerdict } from '../../lib/firestore';
-import { useAuth } from '../../context/AuthContext';
-import { StatusChip } from '../../components/StatusChip';
-import { useFlash } from '../../lib/useFlash';
-import { Toast } from '../../components/Toast';
+import { useParams } from 'react-router-dom';
+import { listSubmissions, recordVerdict } from '../../../lib/firestore';
+import { useAuth } from '../../../context/AuthContext';
+import { StatusChip } from '../../../components/StatusChip';
+import { useFlash } from '../../../lib/useFlash';
+import { Toast } from '../../../components/Toast';
 
 const DECLINE_REASONS = [
   'Photo is blurry or unclear',
@@ -28,6 +29,7 @@ function formatDate(ts) {
 
 export function ReviewQueue() {
   const { profile } = useAuth();
+  const { companyId } = useParams();
   const [tab, setTab] = useState('open');
   const [submissions, setSubmissions] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -36,8 +38,6 @@ export function ReviewQueue() {
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [toast, flash] = useFlash();
-
-  const companyId = profile?.companyId;
 
   function refresh() {
     if (companyId) listSubmissions(undefined, companyId).then(setSubmissions);

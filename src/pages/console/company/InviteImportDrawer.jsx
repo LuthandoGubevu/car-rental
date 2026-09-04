@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { bulkCreateInvites } from '../../lib/firestore';
+import { bulkCreateInvites } from '../../../lib/firestore';
 
 const HEADER_ALIASES = {
   name: 'name',
@@ -200,7 +200,7 @@ export function InviteImportDrawer({ role, roleLabel, companyId, companyName, ex
               </div>
               <p className="muted" style={{ marginBottom: 14 }}>
                 There's no email service built in, so download the links below and send them however you
-                normally reach your team — each link is single-use.
+                normally reach the team — each link is single-use.
               </p>
               <button type="button" className="btn-secondary" onClick={downloadResults} style={{ marginBottom: 16 }}>
                 Download invite links (CSV)
