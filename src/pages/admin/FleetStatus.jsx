@@ -33,7 +33,7 @@ function complianceFor(vehicle, submission) {
 }
 
 export function FleetStatus() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const companyId = profile?.companyId;
   const [vehicles, setVehicles] = useState([]);
   const [submissions, setSubmissions] = useState([]);
@@ -87,7 +87,7 @@ export function FleetStatus() {
   async function acknowledge(submission) {
     setBusyAck(submission.id);
     try {
-      await acknowledgeSubmission(submission.id, profile?.name);
+      await acknowledgeSubmission(submission.id, profile?.name, user.uid);
       flash(`${submission.ref} acknowledged.`);
       refresh();
     } catch {

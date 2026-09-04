@@ -13,7 +13,7 @@ function formatDate(ts) {
 }
 
 export function Incidents() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { companyId } = useParams();
   const [tab, setTab] = useState('open');
   const [incidents, setIncidents] = useState([]);
@@ -32,7 +32,7 @@ export function Incidents() {
   async function review(incident) {
     setBusy(incident.id);
     try {
-      await markIncidentReviewed(incident.id, profile?.name);
+      await markIncidentReviewed(incident.id, profile?.name, user.uid);
       flash(`${incident.ref} marked as reviewed.`);
       refresh();
     } catch {

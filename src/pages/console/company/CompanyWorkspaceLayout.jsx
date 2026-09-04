@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { getCompany, listSubmissions, listIncidents } from '../../../lib/firestore';
+import { getCompany, listCompanies, listSubmissions, listIncidents } from '../../../lib/firestore';
 
 const NAV = [
   ['', 'Overview'],
@@ -39,12 +39,18 @@ export function CompanyWorkspaceLayout() {
   const { companyId } = useParams();
   const { profile, signOut } = useAuth();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [company, setCompany] = useState(null);
+  const [companies, setCompanies] = useState([]);
   const { awaiting, openIncidents } = useCompanyCounts(companyId);
 
   useEffect(() => {
     if (companyId) getCompany(companyId).then(setCompany);
   }, [companyId]);
+
+  useEffect(() => {
+    listCompanies().then(setCompanies);
+  }, []);
 
   const base = `/console/companies/${companyId}`;
   const badges = { [`${base}/queue`]: awaiting, [`${base}/incidents`]: openIncidents };
@@ -54,6 +60,11 @@ export function CompanyWorkspaceLayout() {
     const match = NAV.find(([to]) => to && pathname.startsWith(`${base}/${to}`));
     return match ? match[1] : 'Overview';
   })();
+
+  function switchCompany(newCompanyId) {
+    const suffix = pathname.slice(base.length);
+    navigate(`/console/companies/${newCompanyId}${suffix}`);
+  }
 
   return (
     <div className="app-shell">
@@ -106,6 +117,11 @@ export function CompanyWorkspaceLayout() {
             <span className="crumb-leaf">{crumbLeaf}</span>
           </div>
           <div className="header-spacer" />
+          {companies.length > 1 && (
+            <select value={companyId} onChange={(e) => switchCompany(e.target.value)} aria-label="Switch company">
+              {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
         </header>
         <main className="app-main"><Outlet /></main>
       </div>

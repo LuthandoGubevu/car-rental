@@ -28,7 +28,7 @@ function formatDate(ts) {
 }
 
 export function ReviewQueue() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { companyId } = useParams();
   const [tab, setTab] = useState('open');
   const [submissions, setSubmissions] = useState([]);
@@ -78,6 +78,7 @@ export function ReviewQueue() {
       await recordVerdict(selected.id, {
         verdict,
         reviewedBy: profile?.name,
+        reviewedByUid: user.uid,
         declineReasons: verdict === 'declined' ? reasons : undefined,
         declineNotes: verdict === 'declined' ? notes : undefined,
       });

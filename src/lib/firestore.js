@@ -179,12 +179,13 @@ export async function getSubmission(id) {
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
-export async function recordVerdict(id, { verdict, reviewedBy, declineReasons, declineNotes }) {
+export async function recordVerdict(id, { verdict, reviewedBy, reviewedByUid, declineReasons, declineNotes }) {
   const status = verdict === 'approved' ? 'Reviewed' : 'Declined';
   return updateDoc(doc(db, 'submissions', id), {
     status,
     verdict,
     reviewedBy,
+    reviewedByUid,
     reviewedAt: serverTimestamp(),
     declineReasons: verdict === 'declined' ? declineReasons || [] : null,
     declineNotes: verdict === 'declined' ? declineNotes || '' : null,
@@ -194,11 +195,12 @@ export async function recordVerdict(id, { verdict, reviewedBy, declineReasons, d
 // Light action for a client admin: acknowledges a flagged submission
 // without changing its verdict - a "seen it" signal, distinct from staff's
 // actual review.
-export async function acknowledgeSubmission(id, adminName) {
+export async function acknowledgeSubmission(id, adminName, adminUid) {
   return updateDoc(doc(db, 'submissions', id), {
     acknowledgedByAdmin: true,
     acknowledgedAt: serverTimestamp(),
     acknowledgedBy: adminName,
+    acknowledgedByUid: adminUid,
   });
 }
 
@@ -243,21 +245,23 @@ export async function listIncidents(companyId) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function markIncidentReviewed(id, reviewedBy) {
+export async function markIncidentReviewed(id, reviewedBy, reviewedByUid) {
   return updateDoc(doc(db, 'incidents', id), {
     status: 'Reviewed',
     reviewedBy,
+    reviewedByUid,
     reviewedAt: serverTimestamp(),
   });
 }
 
 // Light action for a client admin: acknowledges an open incident without
 // resolving it - a "seen it" signal, distinct from staff's actual review.
-export async function acknowledgeIncident(id, adminName) {
+export async function acknowledgeIncident(id, adminName, adminUid) {
   return updateDoc(doc(db, 'incidents', id), {
     acknowledgedByAdmin: true,
     acknowledgedAt: serverTimestamp(),
     acknowledgedBy: adminName,
+    acknowledgedByUid: adminUid,
   });
 }
 

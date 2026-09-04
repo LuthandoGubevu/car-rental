@@ -12,7 +12,7 @@ function formatDate(ts) {
 }
 
 export function Incidents() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const companyId = profile?.companyId;
   const [tab, setTab] = useState('open');
   const [incidents, setIncidents] = useState([]);
@@ -31,7 +31,7 @@ export function Incidents() {
   async function acknowledge(incident) {
     setBusy(incident.id);
     try {
-      await acknowledgeIncident(incident.id, profile?.name);
+      await acknowledgeIncident(incident.id, profile?.name, user.uid);
       flash(`${incident.ref} acknowledged.`);
       refresh();
     } catch {

@@ -163,7 +163,7 @@ service cloud.firestore {
         (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
         (isAdminOfCompany(resource.data.companyId) &&
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy']));
+            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy', 'acknowledgedByUid']));
     }
 
     match /incidents/{id} {
@@ -183,7 +183,7 @@ service cloud.firestore {
         (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
         (isAdminOfCompany(resource.data.companyId) &&
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy']));
+            .hasOnly(['acknowledgedByAdmin', 'acknowledgedAt', 'acknowledgedBy', 'acknowledgedByUid']));
     }
 
     // Submitted from the public landing page - the one collection with no
