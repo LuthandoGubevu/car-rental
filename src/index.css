@@ -1327,14 +1327,16 @@ textarea {
   padding: 32px;
   text-align: center;
   font-weight: 600;
-  color: var(--ink-900);
-  border-top: 1px solid var(--border);
+  color: #fff;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-900) 100%);
+  border-top: 1px solid var(--navy-700);
 }
+.landing-footer .muted { color: rgba(255, 255, 255, 0.72); }
 
 .footer-links { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; margin: 6px 0; font-weight: 500; }
-.footer-links a { color: var(--muted-2); font-size: 12.5px; }
-.footer-links a:hover { color: var(--navy-600); }
-.footer-copyright { color: var(--muted-3); font-size: 12px; font-weight: 400; }
+.footer-links a { color: #fff; font-size: 12.5px; }
+.footer-links a:hover { color: var(--orange); }
+.footer-copyright { color: rgba(255, 255, 255, 0.6); font-size: 12px; font-weight: 400; }
 
 /* ── Legal pages ────────────────────────────────────── */
 
