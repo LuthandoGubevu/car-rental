@@ -8,7 +8,7 @@ import { Toast } from '../../../components/Toast';
 
 const DECLINE_REASONS = [
   'Photo is blurry or unclear',
-  'Wrong angle — vehicle not fully in frame',
+  'Wrong angle, vehicle not fully in frame',
   "Photo doesn't match the vehicle on record",
   'Missing one or more required photos',
   'Other',
@@ -85,7 +85,7 @@ export function ReviewQueue() {
       flash(
         verdict === 'approved'
           ? `${selected.ref} approved.`
-          : `${selected.ref} declined — feedback sent to ${selected.customer}.`
+          : `${selected.ref} declined; feedback sent to ${selected.customer}.`
       );
       setSelected(null);
       refresh();
@@ -169,7 +169,7 @@ export function ReviewQueue() {
               {selected.damage ? (
                 <div className="damage-summary">
                   <strong>Damage reported</strong>
-                  {selected.damage.type} — {selected.damage.area || 'area not specified'}
+                  {selected.damage.type} · {selected.damage.area || 'area not specified'}
                   <p>{selected.damage.description}</p>
                 </div>
               ) : (
@@ -180,7 +180,7 @@ export function ReviewQueue() {
 
               {selected.status === 'Awaiting Review' && declining && (
                 <div className="decline-panel">
-                  <p>Tell the driver what needs fixing — this goes back to them so they can resubmit.</p>
+                  <p>Tell the driver what needs fixing; this goes back to them so they can resubmit.</p>
                   {DECLINE_REASONS.map((reason) => (
                     <label key={reason} className={reasons.includes(reason) ? 'checkbox-row checked' : 'checkbox-row'}>
                       <input type="checkbox" checked={reasons.includes(reason)} onChange={() => toggleReason(reason)} />
@@ -201,7 +201,7 @@ export function ReviewQueue() {
                   {selected.verdict === 'declined' && (
                     <p>
                       {(selected.declineReasons || []).join(' · ')}
-                      {selected.declineNotes ? ` — ${selected.declineNotes}` : ''}
+                      {selected.declineNotes ? ` · ${selected.declineNotes}` : ''}
                     </p>
                   )}
                 </div>

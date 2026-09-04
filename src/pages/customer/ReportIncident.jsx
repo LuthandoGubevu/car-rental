@@ -47,7 +47,7 @@ export function ReportIncident() {
       {successRef && (
         <div className="banner banner-success">
           <span className="banner-icon">✓</span>
-          Incident logged. Reference {successRef} — your fleet team will follow up.
+          Incident logged. Reference {successRef}; your fleet team will follow up.
         </div>
       )}
       {error && (

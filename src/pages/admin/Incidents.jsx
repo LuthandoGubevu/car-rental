@@ -44,7 +44,7 @@ export function Incidents() {
   return (
     <div className="page">
       <h1>Incidents</h1>
-      <p className="page-sub">Accident, theft, breakdown and damage reports, reviewed by the Car Care team</p>
+      <p className="page-sub">Accident, theft, breakdown and damage reports, reviewed by the FleetCare team</p>
       <div className="toolbar">
         <div className="tabs">
           <button className={tab === 'open' ? 'tab active' : 'tab'} onClick={() => setTab('open')}>
@@ -95,7 +95,7 @@ export function Incidents() {
             <div className="table-empty-title">{tab === 'open' ? 'No open incidents' : 'No incidents logged'}</div>
             <div className="table-empty-body">
               {tab === 'open'
-                ? 'Every incident has been reviewed by the Car Care team. New reports land here as drivers log them.'
+                ? 'Every incident has been reviewed by the FleetCare team. New reports land here as drivers log them.'
                 : 'Reports from drivers will appear here.'}
             </div>
           </div>

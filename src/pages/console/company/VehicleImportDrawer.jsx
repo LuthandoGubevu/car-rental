@@ -112,7 +112,7 @@ export function VehicleImportDrawer({ companyId, existingVehicles, onClose, onIm
         return;
       }
       if (rows.length > MAX_ROWS) {
-        setError(`This file has ${rows.length} rows — please split it into files of ${MAX_ROWS} rows or fewer.`);
+        setError(`This file has ${rows.length} rows; please split it into files of ${MAX_ROWS} rows or fewer.`);
         return;
       }
       const existingRegs = new Set((existingVehicles || []).map((v) => (v.reg || '').toUpperCase()));

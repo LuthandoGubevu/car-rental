@@ -72,7 +72,7 @@ export function Companies() {
       flash('Company created.');
       setInvite({
         link: `${window.location.origin}/accept-invite/${inviteId}`,
-        label: `${draft.name.trim()} — admin invite`,
+        label: `Admin invite for ${draft.name.trim()}`,
         roleLabel: 'Admin',
       });
     } catch {
@@ -106,7 +106,7 @@ export function Companies() {
       }
       setInvite({
         link: `${window.location.origin}/accept-invite/${pending.id}`,
-        label: `${company.name} — admin invite`,
+        label: `Admin invite for ${company.name}`,
         roleLabel: 'Admin',
       });
     } catch {

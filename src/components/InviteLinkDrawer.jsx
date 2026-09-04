@@ -32,7 +32,7 @@ export function InviteLinkDrawer({ invite, onClose }) {
             <label>Invite link</label>
             <input readOnly value={invite.link} onFocus={(e) => e.target.select()} />
           </div>
-          <p className="muted">This link is single-use and lets them set their own password. It works until they accept it.</p>
+          <p className="muted">This link can only be used once and lets them set their own password. It works until they accept it.</p>
         </div>
         <div className="drawer-foot">
           <button className="btn-primary" onClick={copy}>{copied ? 'Copied!' : 'Copy link'}</button>

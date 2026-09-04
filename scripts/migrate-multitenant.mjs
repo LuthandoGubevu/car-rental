@@ -89,7 +89,7 @@ async function main() {
       role: 'staff',
       companyId: null,
       email: STAFF_EMAIL,
-      name: 'Car Care Staff',
+      name: 'FleetCare Staff',
       inviteId: null,
       invitedBy: null,
       createdAt: FieldValue.serverTimestamp(),

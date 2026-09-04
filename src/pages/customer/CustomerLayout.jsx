@@ -37,7 +37,7 @@ export function CustomerLayout() {
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
-            <div className="sidebar-brand-name">Car Care</div>
+            <div className="sidebar-brand-name">FleetCare</div>
             <div className="sidebar-brand-sub">Driver app</div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-# Car Care
+# FleetCare
 
 A monthly vehicle condition check tool for a car rental/lease fleet. Drivers
 photograph their vehicle from four angles and flag any new damage; the fleet
@@ -68,7 +68,7 @@ just in the UI.
 There is **no public self-serve signup** for any role — every account is
 invite-provisioned:
 
-- **`staff`** (Car Care's own team, `/console`) — provisioned by hand via the
+- **`staff`** (FleetCare's own team, `/console`) — provisioned by hand via the
   Firebase console or `scripts/migrate-multitenant.mjs`, never through the
   app. This is the one manual step; everything else below is in-app.
 - **`admin`** (a fleet company's own team, `/admin`) — a `staff` member

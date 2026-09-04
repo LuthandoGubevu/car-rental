@@ -4,7 +4,7 @@ export function LegalLayout({ title, updated, children }) {
   return (
     <div className="landing">
       <header className="landing-header">
-        <Link to="/" className="brand-mark landing-brand">Car Care</Link>
+        <Link to="/" className="brand-mark landing-brand">FleetCare</Link>
         <Link to="/" className="btn-secondary">Back to home</Link>
       </header>
 
@@ -15,13 +15,13 @@ export function LegalLayout({ title, updated, children }) {
       </div>
 
       <footer className="landing-footer">
-        <span>Car Care</span>
+        <span>FleetCare</span>
         <div className="footer-links">
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/popia">POPIA Compliance</Link>
         </div>
-        <span className="footer-copyright">© {new Date().getFullYear()} Car Care. All rights reserved.</span>
+        <span className="footer-copyright">© {new Date().getFullYear()} FleetCare. All rights reserved.</span>
       </footer>
     </div>
   );

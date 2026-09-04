@@ -108,7 +108,7 @@ export function Team() {
 
       <div className="toolbar">
         <div className="toolbar-spacer" />
-        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite a co-admin'}</button>
+        <button className="btn-primary" onClick={() => setFormOpen((v) => !v)}>{formOpen ? 'Cancel' : 'Invite another admin'}</button>
       </div>
 
       {formOpen && (
@@ -161,7 +161,7 @@ export function Team() {
           <div className="table-empty">
             <div className="table-empty-mark" />
             <div className="table-empty-title">No other admins yet</div>
-            <div className="table-empty-body">Invite a co-admin if more than one person needs to manage this fleet.</div>
+            <div className="table-empty-body">Invite another admin if more than one person needs to manage this fleet.</div>
           </div>
         )}
       </div>

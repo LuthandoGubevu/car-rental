@@ -159,7 +159,7 @@ export function VehicleCheck() {
           </div>
           {reportDamage ? (
             <div className="damage-summary">
-              <strong>Damage reported:</strong> {damage.type} — {damage.area || 'area not specified'}
+              <strong>Damage reported:</strong> {damage.type} · {damage.area || 'area not specified'}
             </div>
           ) : (
             <div className="damage-summary muted">No damage reported.</div>

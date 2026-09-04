@@ -62,7 +62,7 @@ export function AcceptInvite() {
     return (
       <div className="auth-screen">
         <div className="auth-card">
-          <div className="brand-mark">Car Care</div>
+          <div className="brand-mark">FleetCare</div>
           <h1>Invite not available</h1>
           <p className="auth-sub">
             {invite ? 'This invite has already been used or was revoked.' : "We couldn't find that invite link."}
@@ -76,7 +76,7 @@ export function AcceptInvite() {
   return (
     <div className="auth-screen">
       <div className={isDriver ? 'auth-card auth-card-wide' : 'auth-card'}>
-        <div className="brand-mark">Car Care</div>
+        <div className="brand-mark">FleetCare</div>
         <h1>Join {invite.companyName}</h1>
         <p className="auth-sub">
           You've been invited as {invite.role === 'admin' ? 'a fleet administrator' : 'a driver'}. Set a password to finish setting up your account.

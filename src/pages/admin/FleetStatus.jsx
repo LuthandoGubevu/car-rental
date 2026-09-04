@@ -102,7 +102,7 @@ export function FleetStatus() {
   return (
     <div className="page">
       <h1>Fleet Status</h1>
-      <p className="page-sub">Where every vehicle in your fleet stands, as checked by the Car Care team</p>
+      <p className="page-sub">Where every vehicle in your fleet stands, as checked by the FleetCare team</p>
 
       <div className="table-card">
         <table className="table">
@@ -152,7 +152,7 @@ export function FleetStatus() {
           <div className="table-empty">
             <div className="table-empty-mark" />
             <div className="table-empty-title">No vehicles yet</div>
-            <div className="table-empty-body">Vehicles the Car Care team onboards will appear here.</div>
+            <div className="table-empty-body">Vehicles the FleetCare team onboards will appear here.</div>
           </div>
         )}
       </div>
@@ -185,7 +185,7 @@ export function FleetStatus() {
               {photosFor.damage ? (
                 <div className="damage-summary">
                   <strong>Damage reported</strong>
-                  {photosFor.damage.type} — {photosFor.damage.area || 'area not specified'}
+                  {photosFor.damage.type} · {photosFor.damage.area || 'area not specified'}
                   <p>{photosFor.damage.description}</p>
                 </div>
               ) : (
@@ -199,7 +199,7 @@ export function FleetStatus() {
                   {photosFor.verdict === 'declined' && (
                     <p>
                       {(photosFor.declineReasons || []).join(' · ')}
-                      {photosFor.declineNotes ? ` — ${photosFor.declineNotes}` : ''}
+                      {photosFor.declineNotes ? ` · ${photosFor.declineNotes}` : ''}
                     </p>
                   )}
                 </div>

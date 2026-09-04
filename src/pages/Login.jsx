@@ -31,9 +31,9 @@ export function Login() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="brand-mark">Car Care</div>
+        <div className="brand-mark">FleetCare</div>
         <h1>Sign in</h1>
-        <p className="auth-sub">Sign in to your driver, fleet admin, or Car Care staff account.</p>
+        <p className="auth-sub">Sign in to your driver, fleet admin, or FleetCare staff account.</p>
         <form onSubmit={handleSubmit}>
           <label>Email address</label>
           <input

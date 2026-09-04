@@ -28,7 +28,7 @@ export function Vehicles() {
   return (
     <div className="page">
       <h1>Vehicles</h1>
-      <p className="page-sub">Your fleet, as maintained by the Car Care team</p>
+      <p className="page-sub">Your fleet, as maintained by the FleetCare team</p>
       <div className="toolbar">
         <div className="search-field">
           <span>⌕</span>

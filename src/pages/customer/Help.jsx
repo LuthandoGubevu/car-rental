@@ -5,8 +5,8 @@ export function Help() {
       <div className="card">
         <h2>How the monthly condition check works</h2>
         <p className="muted">
-          Once a month you'll be asked to photograph your vehicle from four angles — front, left side,
-          rear and right side — and flag any new damage. Your fleet team reviews each submission and
+          Once a month you'll be asked to photograph your vehicle from four angles: front, left side,
+          rear and right side, and flag any new damage. Your fleet team reviews each submission and
           will follow up if anything needs attention.
         </p>
       </div>
@@ -17,8 +17,8 @@ export function Help() {
       <div className="card">
         <h2>Why the camera opens instead of a gallery</h2>
         <p className="muted">
-          Car Care takes over your camera directly instead of letting you choose a photo from your gallery.
-          That way a submission can't be an old or unrelated photo — every photo you send is verifiably the
+          FleetCare takes over your camera directly instead of letting you choose a photo from your gallery.
+          That way a submission can't be an old or unrelated photo; every photo you send is verifiably the
           vehicle, right now.
         </p>
       </div>

@@ -49,7 +49,7 @@ export function ConsoleLayout() {
         <div className="sidebar-brand">
           <img src="/favicon.svg" alt="" />
           <div>
-            <div className="sidebar-brand-name">Car Care</div>
+            <div className="sidebar-brand-name">FleetCare</div>
             <div className="sidebar-brand-sub">Staff console</div>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function ConsoleLayout() {
             <div className="sidebar-avatar">{initials(profile?.name)}</div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="sidebar-user-name">{profile?.name}</div>
-              <div className="sidebar-user-role">Car Care staff</div>
+              <div className="sidebar-user-role">FleetCare staff</div>
             </div>
             <button className="sidebar-signout" onClick={signOut}>Sign out</button>
           </div>

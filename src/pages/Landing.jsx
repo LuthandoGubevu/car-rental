@@ -21,17 +21,17 @@ const FLEET_STEPS = [
   ['We review every submission', "Our own compliance team checks all 4 photos and any damage report against your fleet records. It's never a queue dumped on your staff."],
   ['Every decision comes with reasons', "Approved, or declined with a specific, visible reason: blurry photo, wrong angle, doesn't match the vehicle. No black box, and no verdict your team has to make themselves."],
   ['Drivers see it and resubmit', 'No dead end: a decline shows the driver exactly what to fix, with a direct link to submit again.'],
-  ['One clear Fleet Status report', 'See exactly where every vehicle stands: up to date, overdue, or flagged, plus every driver-reported incident, already triaged by us.'],
+  ['One clear Fleet Status report', 'See exactly where every vehicle stands: up to date, overdue, or flagged, plus every incident drivers report, already triaged by us.'],
 ];
 
 const FEATURES = [
-  ['Built for the whole lease, not just the ends', 'Most rental tools check a vehicle at pickup and return. Car Care checks in every month, while the lease is still running, catching problems while they’re still small.'],
-  ['Camera-locked, not gallery-uploaded', 'Drivers can’t submit an old or unrelated photo. The app takes over the camera directly, so every submission is verifiably current.'],
+  ['Built for the whole lease, not just the ends', 'Most rental tools check a vehicle at pickup and return. FleetCare checks in every month, while the lease is still running, catching problems while they’re still small.'],
+  ['Locked to the camera, not the gallery', 'Drivers can’t submit an old or unrelated photo. The app takes over the camera directly, so every submission is verifiably current.'],
   ['Reviewed by people, not your team', 'No opaque AI verdict, and no review queue landing on your staff either. Our own compliance team checks every submission and gives clear, visible reasons for every decision. That kind of transparency keeps disputes from turning into arguments.'],
-  ['Priced and built for South African fleets', 'Not a global enterprise platform retrofitted for a small fleet. Car Care is sized and priced for how South African rental and lease companies actually operate.'],
+  ['Priced and built for South African fleets', 'Not a global enterprise platform retrofitted for a small fleet. FleetCare is sized and priced for how South African rental and lease companies actually operate.'],
 ];
 
-const FLEET_SIZES = ['1–25 vehicles', '26–100 vehicles', '101–300 vehicles', '300+ vehicles'];
+const FLEET_SIZES = ['1 to 25 vehicles', '26 to 100 vehicles', '101 to 300 vehicles', '300+ vehicles'];
 
 export function Landing() {
   const { user, role } = useAuth();
@@ -72,7 +72,7 @@ export function Landing() {
   return (
     <div className="landing">
       <header className="landing-header">
-        <div className="brand-mark landing-brand">Car Care</div>
+        <div className="brand-mark landing-brand">FleetCare</div>
         <nav className="landing-nav">
           {LANDING_NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
@@ -95,7 +95,7 @@ export function Landing() {
         <h1 className="landing-h1">The monthly vehicle check your fleet is missing</h1>
         <p className="landing-lead">
           Between pickup and return, most rental and lease companies never actually see the vehicle again.
-          Car Care gives drivers a simple monthly photo check-in and hands you a compliance report reviewed
+          FleetCare gives drivers a simple monthly photo check and hands you a compliance report reviewed
           by our own team, not another queue for yours. Damage, disputes, and overdue inspections stop hiding
           for months at a time.
         </p>
@@ -109,11 +109,11 @@ export function Landing() {
         <h2 className="landing-section-title">See it in action</h2>
         <div className="landing-shots-grid">
           <div className="landing-shot">
-            <img src="/screenshots/admin-preview.png" alt="Car Care Fleet Status report showing vehicle counts, recent submissions and items needing attention" loading="lazy" />
+            <img src="/screenshots/admin-preview.png" alt="FleetCare Fleet Status report showing vehicle counts, recent submissions and items needing attention" loading="lazy" />
             <p className="landing-shot-caption">Your Fleet Status report</p>
           </div>
           <div className="landing-shot">
-            <img src="/screenshots/customer-preview.png" alt="Car Care driver app on a phone, showing a vehicle's condition check status and quick actions" loading="lazy" />
+            <img src="/screenshots/customer-preview.png" alt="FleetCare driver app on a phone, showing a vehicle's condition check status and quick actions" loading="lazy" />
             <p className="landing-shot-caption">Your drivers' app</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export function Landing() {
       </section>
 
       <section className="landing-section">
-        <h2 className="landing-section-title">Why Car Care</h2>
+        <h2 className="landing-section-title">Why FleetCare</h2>
         <div className="landing-features">
           {FEATURES.map(([title, body]) => (
             <div key={title} className="landing-feature">
@@ -169,13 +169,13 @@ export function Landing() {
       <section id="pricing" className="landing-section landing-section-alt">
         <h2 className="landing-section-title">Simple, per-vehicle pricing</h2>
         <p className="muted landing-demo-sub">
-          From R42–R89 per vehicle/month, depending on fleet size.
+          From R42 to R89 per vehicle per month, depending on fleet size.
         </p>
         <div className="landing-pricing-tags">
           <span className="landing-pricing-tag">Priced per vehicle, per month</span>
           <span className="landing-pricing-tag">Volume discounts as your fleet grows</span>
-          <span className="landing-pricing-tag">White-label setup available</span>
-          <span className="landing-pricing-tag">No long-term lock-in</span>
+          <span className="landing-pricing-tag">White label setup available</span>
+          <span className="landing-pricing-tag">No long term commitment</span>
         </div>
         <div className="landing-cta-row">
           <a href="#book-demo" className="btn-orange btn-inline">Get a quote</a>
@@ -186,7 +186,7 @@ export function Landing() {
       <section id="book-demo" className="landing-section landing-demo">
         <h2 className="landing-section-title">Book a demo</h2>
         <p className="muted landing-demo-sub">
-          Tell us about your fleet and we&apos;ll be in touch to show you Car Care running on your own vehicles.
+          Tell us about your fleet and we&apos;ll be in touch to show you FleetCare running on your own vehicles.
         </p>
 
         {submitted ? (
@@ -239,14 +239,14 @@ export function Landing() {
       </section>
 
       <footer className="landing-footer">
-        <span>Car Care</span>
+        <span>FleetCare</span>
         <span className="muted">Monthly vehicle condition checks for South African rental and lease fleets.</span>
         <div className="footer-links">
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/popia">POPIA Compliance</Link>
         </div>
-        <span className="footer-copyright">© {new Date().getFullYear()} Car Care. All rights reserved.</span>
+        <span className="footer-copyright">© {new Date().getFullYear()} FleetCare. All rights reserved.</span>
       </footer>
     </div>
   );

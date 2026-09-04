@@ -55,7 +55,7 @@ export function CompanySettings() {
   return (
     <div className="page">
       <h1>Company settings</h1>
-      <p className="page-sub">Contact details and branches on file with the Car Care team</p>
+      <p className="page-sub">Contact details and branches on file with the FleetCare team</p>
 
       {loaded && (
         <form onSubmit={handleSave} className="card form-grid">

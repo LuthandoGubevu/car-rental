@@ -75,7 +75,7 @@ export function History() {
                 {s.status === 'Declined' && (
                   <div className="history-detail">
                     {(s.declineReasons || []).join(' · ')}
-                    {s.declineNotes ? ` — ${s.declineNotes}` : ''}
+                    {s.declineNotes ? ` · ${s.declineNotes}` : ''}
                     {' '}<Link to="/dashboard/check">Submit again</Link>
                   </div>
                 )}

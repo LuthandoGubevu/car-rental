@@ -1,4 +1,4 @@
-// Firebase initialization for the Car Care app.
+// Firebase initialization for the FleetCare app.
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, isSupported as analyticsIsSupported } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';

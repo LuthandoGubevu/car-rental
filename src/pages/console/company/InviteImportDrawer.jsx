@@ -98,7 +98,7 @@ export function InviteImportDrawer({ role, roleLabel, companyId, companyName, ex
         return;
       }
       if (rows.length > MAX_ROWS) {
-        setError(`This file has ${rows.length} rows — please split it into files of ${MAX_ROWS} rows or fewer.`);
+        setError(`This file has ${rows.length} rows; please split it into files of ${MAX_ROWS} rows or fewer.`);
         return;
       }
       setParsedRows(validateRows(rows, existingEmails));
@@ -200,7 +200,7 @@ export function InviteImportDrawer({ role, roleLabel, companyId, companyName, ex
               </div>
               <p className="muted" style={{ marginBottom: 14 }}>
                 There's no email service built in, so download the links below and send them however you
-                normally reach the team — each link is single-use.
+                normally reach the team; each link can only be used once.
               </p>
               <button type="button" className="btn-secondary" onClick={downloadResults} style={{ marginBottom: 16 }}>
                 Download invite links (CSV)
@@ -228,7 +228,7 @@ export function InviteImportDrawer({ role, roleLabel, companyId, companyName, ex
               </div>
               {results.length > PREVIEW_CAP && (
                 <p className="muted" style={{ marginTop: 10 }}>
-                  Showing the first {PREVIEW_CAP} of {results.length} — the rest are in the downloaded CSV.
+                  Showing the first {PREVIEW_CAP} of {results.length}; the rest are in the downloaded CSV.
                 </p>
               )}
             </>

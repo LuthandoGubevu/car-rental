@@ -189,7 +189,7 @@ service cloud.firestore {
     // Submitted from the public landing page - the one collection with no
     // isSignedIn() requirement, since a prospect filling this in was never
     // asked to create an account. status is pinned to 'New' so a request
-    // can't arrive pre-marked as handled. These are Car Care's own leads,
+    // can't arrive pre-marked as handled. These are FleetCare's own leads,
     // not scoped to any fleet company, so only staff can read/manage them.
     match /demoRequests/{id} {
       allow read, update: if isStaff();

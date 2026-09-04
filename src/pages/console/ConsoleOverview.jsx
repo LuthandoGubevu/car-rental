@@ -158,7 +158,7 @@ export function ConsoleOverview() {
       <div className="vehicle-card-top">
         <div>
           <h1>Overview</h1>
-          <p className="page-sub">Car Care, at a glance</p>
+          <p className="page-sub">FleetCare, at a glance</p>
         </div>
         <Link to="/console/companies" className="btn-primary">Add a company</Link>
       </div>

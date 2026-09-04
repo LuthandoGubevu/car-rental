@@ -4,13 +4,13 @@ export function Terms() {
   return (
     <LegalLayout title="Terms of Service" updated="3 September 2026">
       <p>
-        These terms govern your use of Car Care, a monthly vehicle condition-check and incident-reporting
+        These terms govern your use of FleetCare, a monthly vehicle condition check and incident reporting
         platform. By creating an account or using the app, you agree to these terms.
       </p>
 
-      <h2>1. What Car Care is</h2>
+      <h2>1. What FleetCare is</h2>
       <p>
-        Car Care lets drivers submit monthly photo condition checks and incident reports for a vehicle
+        FleetCare lets drivers submit monthly photo condition checks and incident reports for a vehicle
         assigned to them by a rental or lease company, and lets that company's fleet team review, approve, or
         decline those submissions with feedback.
       </p>
@@ -24,14 +24,14 @@ export function Terms() {
 
       <h2>3. Submitting condition checks</h2>
       <ul>
-        <li>Photos must be taken live through the app's camera at the time of submission — uploading photos from your gallery is not supported, by design, so that submissions reflect the vehicle's real, current condition.</li>
+        <li>Photos must be taken live through the app's camera at the time of submission; uploading photos from your gallery is not supported, by design, so that submissions reflect the vehicle's real, current condition.</li>
         <li>You must submit an honest and complete account of any new damage. Knowingly submitting false or misleading information may be reported to your fleet company and could affect your lease/rental agreement.</li>
       </ul>
 
       <h2>4. Review process</h2>
       <ul>
-        <li>Submissions are reviewed by your fleet company's administrators, not by Car Care. Approval or decline decisions, and any consequences of a decline (e.g. required resubmission), are between you and your fleet company.</li>
-        <li>Car Care provides the platform; we do not arbitrate disputes about a vehicle's condition, fault, or contractual consequences between you and your fleet company.</li>
+        <li>Submissions are reviewed by your fleet company's administrators, not by FleetCare. Approval or decline decisions, and any consequences of a decline (e.g. required resubmission), are between you and your fleet company.</li>
+        <li>FleetCare provides the platform; we do not arbitrate disputes about a vehicle's condition, fault, or contractual consequences between you and your fleet company.</li>
       </ul>
 
       <h2>5. Fleet administrators</h2>
@@ -48,15 +48,15 @@ export function Terms() {
 
       <h2>7. Availability</h2>
       <p>
-        We aim to keep Car Care available at all times but do not guarantee uninterrupted access. We are not
-        liable for consequences arising from temporary unavailability (e.g. a missed check-in deadline caused
+        We aim to keep FleetCare available at all times but do not guarantee uninterrupted access. We are not
+        liable for consequences arising from temporary unavailability (e.g. a missed check deadline caused
         by an outage).
       </p>
 
       <h2>8. Limitation of liability</h2>
       <p>
-        Car Care is a record-keeping and review-workflow tool. To the maximum extent permitted by law, Car
-        Care is not liable for decisions made by your fleet company based on submissions recorded through the
+        FleetCare is a record keeping and review workflow tool. To the maximum extent permitted by law,
+        FleetCare is not liable for decisions made by your fleet company based on submissions recorded through the
         platform, for vehicle damage itself, or for indirect or consequential losses arising from use of the
         app.
       </p>
@@ -77,7 +77,7 @@ export function Terms() {
       <p>These terms are governed by the laws of the Republic of South Africa.</p>
 
       <h2>12. Contact us</h2>
-      <p><strong>legal@carcare.co.za</strong></p>
+      <p><strong>legal@fleetcare.co.za</strong></p>
     </LegalLayout>
   );
 }
