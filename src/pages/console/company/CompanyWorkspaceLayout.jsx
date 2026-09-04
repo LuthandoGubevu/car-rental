@@ -95,7 +95,6 @@ export function CompanyWorkspaceLayout() {
         </nav>
 
         <div className="sidebar-foot">
-          <Link to="/" className="sidebar-link">Public site · Book a demo</Link>
           <div className="sidebar-user">
             <div className="sidebar-avatar">{initials(profile?.name)}</div>
             <div style={{ minWidth: 0, flex: 1 }}>

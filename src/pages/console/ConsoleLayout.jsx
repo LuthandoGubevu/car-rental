@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { listCompanies, listDemoRequests } from '../../lib/firestore';
 
@@ -62,7 +62,6 @@ export function ConsoleLayout() {
         </nav>
 
         <div className="sidebar-foot">
-          <Link to="/" className="sidebar-link">Public site · Book a demo</Link>
           <div className="sidebar-user">
             <div className="sidebar-avatar">{initials(profile?.name)}</div>
             <div style={{ minWidth: 0, flex: 1 }}>
