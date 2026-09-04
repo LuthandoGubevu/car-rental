@@ -11,16 +11,16 @@ const DRIVER_STEPS = [
 ];
 
 const FLEET_STEPS = [
-  ['Review with full context', 'Every submission shows all 4 photos and any damage report side by side, ready for a decision.'],
-  ['Approve or decline with reasons', "Blurry photo, wrong angle, doesn't match the vehicle, missing photos — pick a reason or add a note."],
-  ['Drivers see it and resubmit', 'No black box: a decline shows the driver exactly what to fix, with a direct link to submit again.'],
-  ['Track everything in one place', 'Overdue inspections, declined submissions, and driver-reported incidents, all counted on one overview.'],
+  ['We review every submission', 'Our own compliance team checks all 4 photos and any damage report against your fleet records — not a queue dumped on your staff.'],
+  ['Every decision comes with reasons', "Approved, or declined with a specific, visible reason — blurry photo, wrong angle, doesn't match the vehicle. No black box, and no verdict your team has to make themselves."],
+  ['Drivers see it and resubmit', 'No dead end: a decline shows the driver exactly what to fix, with a direct link to submit again.'],
+  ['One clear Fleet Status report', 'See exactly where every vehicle stands — up to date, overdue, or flagged — plus every driver-reported incident, already triaged by us.'],
 ];
 
 const FEATURES = [
   ['Built for the whole lease, not just the ends', 'Most rental tools check a vehicle at pickup and return. Car Care checks in every month, while the lease is still running — catching problems while they’re still small.'],
   ['Camera-locked, not gallery-uploaded', 'Drivers can’t submit an old or unrelated photo. The app takes over the camera directly, so every submission is verifiably current.'],
-  ['A human decision, with reasons', 'No opaque AI verdict. Your team approves or declines with specific, visible reasons — the kind of transparency that keeps disputes from turning into arguments.'],
+  ['Reviewed by people, not your team', 'No opaque AI verdict, and no review queue landing on your staff either. Our own compliance team checks every submission and gives clear, visible reasons for every decision — the kind of transparency that keeps disputes from turning into arguments.'],
   ['Priced and built for South African fleets', 'Not a global enterprise platform retrofitted for a small fleet. Car Care is sized and priced for how South African rental and lease companies actually operate.'],
 ];
 
@@ -73,8 +73,9 @@ export function Landing() {
         <h1 className="landing-h1">The monthly vehicle check your fleet is missing</h1>
         <p className="landing-lead">
           Between pickup and return, most rental and lease companies never actually see the vehicle again.
-          Car Care gives drivers a simple monthly photo check-in, and gives your fleet team a review queue
-          with real answers — so damage, disputes, and overdue inspections stop hiding for months at a time.
+          Car Care gives drivers a simple monthly photo check-in, and gives you a compliance report reviewed
+          by our own team — not another queue for yours — so damage, disputes, and overdue inspections stop
+          hiding for months at a time.
         </p>
         <div className="landing-cta-row">
           <a href="#book-demo" className="btn-hero-primary btn-inline">Book a demo</a>
@@ -114,7 +115,7 @@ export function Landing() {
             </ol>
           </div>
           <div className="landing-track">
-            <p className="landing-track-label">For your fleet team</p>
+            <p className="landing-track-label">For your business</p>
             <ol className="landing-steps">
               {FLEET_STEPS.map(([title, body], i) => (
                 <li key={title}>
