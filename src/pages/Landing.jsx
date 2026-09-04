@@ -121,6 +121,7 @@ export function Landing() {
 
       <section id="how-it-works" className="landing-section landing-section-alt">
         <h2 className="landing-section-title">How it works</h2>
+        <p className="landing-demo-sub">Every month, the driver submits four photos. Our own team reviews them. You get the report.</p>
         <div className="landing-tracks">
           <div className="landing-track">
             <p className="landing-track-label">For drivers</p>
