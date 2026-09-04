@@ -39,8 +39,16 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
+  // Returns the signed-in user's role directly, rather than making the
+  // caller wait on the separate onAuthStateChanged listener above to catch
+  // up - that fetch is async too, so navigating right after signIn() would
+  // otherwise be racing it.
   async function signIn(email, password) {
-    await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const snap = await getDoc(doc(db, 'users', cred.user.uid));
+    const nextProfile = snap.exists() ? snap.data() : null;
+    setProfile(nextProfile);
+    return nextProfile?.role || null;
   }
 
   // Accounts are always invite-provisioned (an admin invites a driver, staff

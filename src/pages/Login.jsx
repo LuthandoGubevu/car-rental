@@ -18,8 +18,9 @@ export function Login() {
     setBusy(true);
     setError(null);
     try {
-      await signIn(email.trim(), password);
-      navigate('/dashboard', { replace: true });
+      const role = await signIn(email.trim(), password);
+      const home = role === 'admin' ? '/admin' : role === 'staff' ? '/console' : '/dashboard';
+      navigate(home, { replace: true });
     } catch {
       setError('We could not sign you in with those details. Please try again.');
     } finally {
