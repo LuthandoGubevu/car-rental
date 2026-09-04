@@ -245,6 +245,10 @@ textarea {
 .btn-ghost,
 .btn-danger,
 .btn-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   height: 42px;
   border-radius: var(--r-ctl);
   font-size: 13.5px;
@@ -269,10 +273,6 @@ textarea {
 
 .btn-inline {
   width: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
   margin-top: 4px;
 }
 
