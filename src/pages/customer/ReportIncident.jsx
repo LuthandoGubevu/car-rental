@@ -14,8 +14,8 @@ export function ReportIncident() {
   const [successRef, setSuccessRef] = useState(null);
 
   useEffect(() => {
-    getVehicleForDriver(user.uid).then(setVehicle);
-    listIncidentsForDriver(user.uid).then(setIncidents);
+    getVehicleForDriver(user.uid).then(setVehicle).catch(() => setError('We could not load your vehicle.'));
+    listIncidentsForDriver(user.uid).then(setIncidents).catch(() => setError('We could not load your incident history.'));
   }, [user.uid]);
 
   async function handleSubmit(e) {
@@ -29,7 +29,9 @@ export function ReportIncident() {
     try {
       const { ref } = await createIncident({ uid: user.uid, companyId: profile?.companyId, driverName: profile?.name, vehicle, ...form });
       setForm({ type: TYPES[0], description: '', date: '' });
-      listIncidentsForDriver(user.uid).then(setIncidents);
+      // Best-effort refresh - the incident above is already saved, so a
+      // failure here shouldn't make a successful submission look failed.
+      listIncidentsForDriver(user.uid).then(setIncidents).catch((err) => console.error('Could not refresh incidents:', err));
       setSuccessRef(ref);
     } catch {
       setError('We could not log this incident. Please try again.');

@@ -40,10 +40,10 @@ export function ReviewQueue() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    if (companyId) listSubmissions(undefined, companyId).then(setSubmissions);
+    if (companyId) listSubmissions(undefined, companyId).then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
 
   const awaitingSubs = submissions.filter((s) => s.status === 'Awaiting Review');
   const visible = tab === 'open' ? awaitingSubs : submissions;

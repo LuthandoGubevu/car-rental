@@ -26,12 +26,14 @@ function useCompanyCounts(companyId) {
   const [counts, setCounts] = useState({ awaiting: 0, openIncidents: 0 });
   useEffect(() => {
     if (!companyId) return;
-    Promise.all([listSubmissions(undefined, companyId), listIncidents(companyId)]).then(([subs, incs]) =>
-      setCounts({
-        awaiting: subs.filter((s) => s.status === 'Awaiting Review').length,
-        openIncidents: incs.filter((i) => i.status === 'Logged').length,
-      })
-    );
+    Promise.all([listSubmissions(undefined, companyId), listIncidents(companyId)])
+      .then(([subs, incs]) =>
+        setCounts({
+          awaiting: subs.filter((s) => s.status === 'Awaiting Review').length,
+          openIncidents: incs.filter((i) => i.status === 'Logged').length,
+        })
+      )
+      .catch((err) => console.error('Could not load company counts:', err));
   }, [companyId]);
   return counts;
 }
@@ -47,11 +49,11 @@ export function CompanyWorkspaceLayout() {
   const { open, toggle, close } = useMobileNav();
 
   useEffect(() => {
-    if (companyId) getCompany(companyId).then(setCompany);
+    if (companyId) getCompany(companyId).then(setCompany).catch((err) => console.error('Could not load company:', err));
   }, [companyId]);
 
   useEffect(() => {
-    listCompanies().then(setCompanies);
+    listCompanies().then(setCompanies).catch((err) => console.error('Could not load companies:', err));
   }, []);
 
   const base = `/console/companies/${companyId}`;

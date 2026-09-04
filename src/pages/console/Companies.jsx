@@ -32,11 +32,11 @@ export function Companies() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    listCompanies().then(setCompanies);
-    listAllVehicles().then(setVehicles);
+    listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
+    listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [flash]);
 
   const vehicleCounts = vehicles.reduce((counts, v) => {
     if (v.companyId) counts[v.companyId] = (counts[v.companyId] || 0) + 1;

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { listSubmissions } from '../../../lib/firestore';
 import { StatusChip } from '../../../components/StatusChip';
+import { useFlash } from '../../../lib/useFlash';
+import { Toast } from '../../../components/Toast';
 
 function formatDate(ts) {
   const d = ts?.toDate?.();
@@ -13,11 +15,14 @@ export function Outcomes() {
   const { companyId } = useParams();
   const [tab, setTab] = useState('declined');
   const [submissions, setSubmissions] = useState([]);
+  const [toast, flash] = useFlash();
 
   useEffect(() => {
     if (!companyId) return;
-    listSubmissions(undefined, companyId).then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')));
-  }, [companyId]);
+    listSubmissions(undefined, companyId)
+      .then((all) => setSubmissions(all.filter((s) => s.status !== 'Awaiting Review')))
+      .catch(() => flash('We could not load outcomes.', 'error'));
+  }, [companyId, flash]);
 
   const declinedSubs = submissions.filter((s) => s.status === 'Declined');
   const visible = tab === 'declined' ? declinedSubs : submissions;
@@ -65,6 +70,7 @@ export function Outcomes() {
           </div>
         )}
       </div>
+      <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );
 }

@@ -28,13 +28,17 @@ export function Team() {
 
   function refresh() {
     if (!companyId) return;
-    listCompanyUsers(companyId).then((all) => setAdmins(all.filter((m) => m.role === 'admin')));
-    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'admin')));
+    listCompanyUsers(companyId)
+      .then((all) => setAdmins(all.filter((m) => m.role === 'admin')))
+      .catch(() => flash('We could not load the team.', 'error'));
+    listCompanyInvites(companyId)
+      .then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'admin')))
+      .catch(() => flash('We could not load invites.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
   useEffect(() => {
-    if (companyId) getCompany(companyId).then((c) => setCompanyName(c?.name || ''));
+    if (companyId) getCompany(companyId).then((c) => setCompanyName(c?.name || '')).catch((err) => console.error('Could not load company:', err));
   }, [companyId]);
 
   async function handleInvite(e) {

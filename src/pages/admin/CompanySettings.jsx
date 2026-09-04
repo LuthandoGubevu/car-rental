@@ -16,17 +16,22 @@ export function CompanySettings() {
 
   useEffect(() => {
     if (!companyId) return;
-    getCompany(companyId).then((c) => {
-      setDraft({
-        contactName: c?.contactName || '',
-        contactEmail: c?.contactEmail || '',
-        contactPhone: c?.contactPhone || '',
-        address: c?.address || '',
-        branches: (c?.branches || []).join(', '),
+    getCompany(companyId)
+      .then((c) => {
+        setDraft({
+          contactName: c?.contactName || '',
+          contactEmail: c?.contactEmail || '',
+          contactPhone: c?.contactPhone || '',
+          address: c?.address || '',
+          branches: (c?.branches || []).join(', '),
+        });
+        setLoaded(true);
+      })
+      .catch(() => {
+        flash('We could not load your company details.', 'error');
+        setLoaded(true);
       });
-      setLoaded(true);
-    });
-  }, [companyId]);
+  }, [companyId, flash]);
 
   async function handleSave(e) {
     e.preventDefault();

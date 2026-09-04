@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { listVehicles } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
+import { useFlash } from '../../lib/useFlash';
+import { Toast } from '../../components/Toast';
 
 const STATUSES = ['Active Lease', 'Available', 'Inspection Due', 'Under Review', 'Maintenance', 'Accident Repair', 'Returned', 'Sold'];
 
@@ -11,10 +13,11 @@ export function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All statuses');
+  const [toast, flash] = useFlash();
 
   useEffect(() => {
-    if (companyId) listVehicles(companyId).then(setVehicles);
-  }, [companyId]);
+    if (companyId) listVehicles(companyId).then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
+  }, [companyId, flash]);
 
   const filtered = vehicles.filter((v) => {
     const matchesStatus = statusFilter === 'All statuses' || v.status === statusFilter;
@@ -61,6 +64,7 @@ export function Vehicles() {
           </div>
         )}
       </div>
+      <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );
 }

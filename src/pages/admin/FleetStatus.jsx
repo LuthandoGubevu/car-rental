@@ -45,20 +45,22 @@ export function FleetStatus() {
 
   function refresh() {
     if (!companyId) return;
-    listVehicles(companyId).then((vs) => {
-      setVehicles(vs);
-      setNotes((prev) => {
-        const next = { ...prev };
-        vs.forEach((v) => {
-          if (next[v.id] === undefined) next[v.id] = v.adminNote || '';
+    listVehicles(companyId)
+      .then((vs) => {
+        setVehicles(vs);
+        setNotes((prev) => {
+          const next = { ...prev };
+          vs.forEach((v) => {
+            if (next[v.id] === undefined) next[v.id] = v.adminNote || '';
+          });
+          return next;
         });
-        return next;
-      });
-    });
-    listSubmissions(undefined, companyId).then(setSubmissions);
+      })
+      .catch(() => flash('We could not load vehicles.', 'error'));
+    listSubmissions(undefined, companyId).then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
 
   // listSubmissions orders by createdAt desc, so the first hit per
   // vehicleId is that vehicle's most recent submission.

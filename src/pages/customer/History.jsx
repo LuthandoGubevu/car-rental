@@ -20,14 +20,26 @@ export function History() {
   const { user } = useAuth();
   const location = useLocation();
   const [submissions, setSubmissions] = useState(undefined);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    listSubmissionsForDriver(user.uid).then(setSubmissions);
+    listSubmissionsForDriver(user.uid)
+      .then(setSubmissions)
+      .catch(() => {
+        setSubmissions([]);
+        setError(true);
+      });
   }, [user.uid]);
 
   return (
     <div className="page">
       <h1>Inspection History</h1>
+      {error && (
+        <div className="banner banner-error">
+          <span className="banner-icon">!</span>
+          We could not load your inspection history. Please try again.
+        </div>
+      )}
       {location.state?.justSubmitted && (
         <div className="banner banner-success">
           <span className="banner-icon">✓</span>

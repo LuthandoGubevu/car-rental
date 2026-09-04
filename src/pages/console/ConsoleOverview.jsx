@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listCompanies, listDemoRequests, listAllVehicles } from '../../lib/firestore';
+import { useFlash } from '../../lib/useFlash';
+import { Toast } from '../../components/Toast';
 
 function clamp01(n) {
   if (!Number.isFinite(n)) return 0;
@@ -51,12 +53,13 @@ export function ConsoleOverview() {
   const [companies, setCompanies] = useState([]);
   const [demoRequests, setDemoRequests] = useState([]);
   const [vehicles, setVehicles] = useState([]);
+  const [toast, flash] = useFlash();
 
   useEffect(() => {
-    listCompanies().then(setCompanies);
-    listDemoRequests().then(setDemoRequests);
-    listAllVehicles().then(setVehicles);
-  }, []);
+    listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
+    listDemoRequests().then(setDemoRequests).catch(() => flash('We could not load demo requests.', 'error'));
+    listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
+  }, [flash]);
 
   const newDemoRequests = demoRequests.filter((r) => r.status === 'New');
   const oldestNew = newDemoRequests
@@ -222,6 +225,7 @@ export function ConsoleOverview() {
           </div>
         </div>
       </div>
+      <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );
 }

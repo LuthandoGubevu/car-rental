@@ -30,13 +30,17 @@ export function Drivers() {
 
   function refresh() {
     if (!companyId) return;
-    listCompanyUsers(companyId).then((all) => setMembers(all.filter((m) => m.role === 'driver')));
-    listCompanyInvites(companyId).then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'driver')));
+    listCompanyUsers(companyId)
+      .then((all) => setMembers(all.filter((m) => m.role === 'driver')))
+      .catch(() => flash('We could not load drivers.', 'error'));
+    listCompanyInvites(companyId)
+      .then((all) => setInvites(all.filter((i) => i.status === 'pending' && i.role === 'driver')))
+      .catch(() => flash('We could not load invites.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
   useEffect(() => {
-    if (companyId) getCompany(companyId).then((c) => setCompanyName(c?.name || ''));
+    if (companyId) getCompany(companyId).then((c) => setCompanyName(c?.name || '')).catch((err) => console.error('Could not load company:', err));
   }, [companyId]);
 
   async function handleInvite(e) {

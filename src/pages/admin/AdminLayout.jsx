@@ -31,9 +31,9 @@ function useAdminCounts(companyId) {
   const [counts, setCounts] = useState({ openIncidents: 0 });
   useEffect(() => {
     if (!companyId) return;
-    listIncidents(companyId).then((incs) =>
-      setCounts({ openIncidents: incs.filter((i) => i.status === 'Logged').length })
-    );
+    listIncidents(companyId)
+      .then((incs) => setCounts({ openIncidents: incs.filter((i) => i.status === 'Logged').length }))
+      .catch((err) => console.error('Could not load incident counts:', err));
   }, [companyId]);
   return counts;
 }

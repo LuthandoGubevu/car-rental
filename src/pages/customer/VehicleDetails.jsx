@@ -22,12 +22,25 @@ const ROWS = [
 export function VehicleDetails() {
   const { user } = useAuth();
   const [vehicle, setVehicle] = useState(undefined);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    getVehicleForDriver(user.uid).then(setVehicle);
+    getVehicleForDriver(user.uid)
+      .then(setVehicle)
+      .catch(() => {
+        setVehicle(null);
+        setError(true);
+      });
   }, [user.uid]);
 
   if (vehicle === undefined) return <div className="page-loading">Loading…</div>;
+  if (error) {
+    return (
+      <div className="page">
+        <div className="banner banner-error"><span className="banner-icon">!</span>We could not load your vehicle. Please try again.</div>
+      </div>
+    );
+  }
   if (!vehicle) return <div className="page"><p className="muted">No vehicle is linked to your account.</p></div>;
 
   return (

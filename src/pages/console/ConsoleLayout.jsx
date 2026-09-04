@@ -28,9 +28,9 @@ function useCrumbLeaf() {
 function useConsoleCounts() {
   const [counts, setCounts] = useState({ newDemoRequests: 0 });
   useEffect(() => {
-    Promise.all([listCompanies(), listDemoRequests()]).then(([, demoRequests]) =>
-      setCounts({ newDemoRequests: demoRequests.filter((r) => r.status === 'New').length })
-    );
+    Promise.all([listCompanies(), listDemoRequests()])
+      .then(([, demoRequests]) => setCounts({ newDemoRequests: demoRequests.filter((r) => r.status === 'New').length }))
+      .catch((err) => console.error('Could not load console counts:', err));
   }, []);
   return counts;
 }

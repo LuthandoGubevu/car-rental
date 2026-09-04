@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { listVehicles, listSubmissions, listIncidents } from '../../lib/firestore';
+import { useFlash } from '../../lib/useFlash';
+import { Toast } from '../../components/Toast';
 
 function clamp01(n) {
   if (!Number.isFinite(n)) return 0;
@@ -54,13 +56,14 @@ export function Overview() {
   const [vehicles, setVehicles] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [incidents, setIncidents] = useState([]);
+  const [toast, flash] = useFlash();
 
   useEffect(() => {
     if (!companyId) return;
-    listVehicles(companyId).then(setVehicles);
-    listSubmissions(undefined, companyId).then(setSubmissions);
-    listIncidents(companyId).then(setIncidents);
-  }, [companyId]);
+    listVehicles(companyId).then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
+    listSubmissions(undefined, companyId).then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
+    listIncidents(companyId).then(setIncidents).catch(() => flash('We could not load incidents.', 'error'));
+  }, [companyId, flash]);
 
   const awaitingSubs = submissions.filter((s) => s.status === 'Awaiting Review');
   const awaiting = awaitingSubs.length;
@@ -225,6 +228,7 @@ export function Overview() {
           </div>
         </div>
       </div>
+      <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );
 }

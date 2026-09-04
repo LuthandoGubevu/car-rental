@@ -22,10 +22,10 @@ export function Vehicles() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    if (companyId) listVehicles(companyId).then(setVehicles);
+    if (companyId) listVehicles(companyId).then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
 
   const filtered = vehicles.filter((v) => {
     const matchesStatus = statusFilter === 'All statuses' || v.status === statusFilter;

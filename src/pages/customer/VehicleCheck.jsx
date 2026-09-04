@@ -18,6 +18,7 @@ export function VehicleCheck() {
   const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState(undefined);
+  const [vehicleLoadError, setVehicleLoadError] = useState(false);
   const [step, setStep] = useState(0); // 0..3 capture, 4 damage, 5 review
   const [photos, setPhotos] = useState({});
   const [reportDamage, setReportDamage] = useState(false);
@@ -26,10 +27,22 @@ export function VehicleCheck() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getVehicleForDriver(user.uid).then(setVehicle);
+    getVehicleForDriver(user.uid)
+      .then(setVehicle)
+      .catch(() => {
+        setVehicle(null);
+        setVehicleLoadError(true);
+      });
   }, [user.uid]);
 
   if (vehicle === undefined) return <div className="page-loading">Loading…</div>;
+  if (vehicleLoadError) {
+    return (
+      <div className="page">
+        <div className="banner banner-error"><span className="banner-icon">!</span>We could not load your vehicle. Please try again.</div>
+      </div>
+    );
+  }
   if (!vehicle) return <div className="page"><p>No vehicle is linked to your account.</p></div>;
 
   const capturing = step < ANGLES.length;

@@ -19,10 +19,10 @@ export function DemoRequests() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    listDemoRequests().then(setRequests);
+    listDemoRequests().then(setRequests).catch(() => flash('We could not load demo requests.', 'error'));
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [flash]);
 
   const newRequests = requests.filter((r) => r.status === 'New');
   const visible = tab === 'open' ? newRequests : requests;

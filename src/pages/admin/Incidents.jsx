@@ -20,10 +20,10 @@ export function Incidents() {
   const [toast, flash] = useFlash();
 
   function refresh() {
-    if (companyId) listIncidents(companyId).then(setIncidents);
+    if (companyId) listIncidents(companyId).then(setIncidents).catch(() => flash('We could not load incidents.', 'error'));
   }
 
-  useEffect(refresh, [companyId]);
+  useEffect(refresh, [companyId, flash]);
 
   const openIncidents = incidents.filter((i) => i.status === 'Logged');
   const visible = tab === 'open' ? openIncidents : incidents;

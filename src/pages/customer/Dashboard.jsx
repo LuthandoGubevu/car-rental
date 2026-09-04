@@ -23,18 +23,26 @@ export function Dashboard() {
   const [vehicle, setVehicle] = useState(undefined);
   const [latestSubmission, setLatestSubmission] = useState(undefined);
   const [checksCompleted, setChecksCompleted] = useState(undefined);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let active = true;
-    getVehicleForDriver(user.uid).then((v) => {
-      if (active) setVehicle(v);
-    });
+    getVehicleForDriver(user.uid)
+      .then((v) => {
+        if (active) setVehicle(v);
+      })
+      .catch(() => {
+        if (active) {
+          setVehicle(null);
+          setError('We could not load your vehicle.');
+        }
+      });
     getLatestSubmissionForDriver(user.uid).then((s) => {
       if (active) setLatestSubmission(s);
-    });
+    }).catch((err) => console.error('Could not load latest submission:', err));
     listSubmissionsForDriver(user.uid).then((subs) => {
       if (active) setChecksCompleted(subs.length);
-    });
+    }).catch((err) => console.error('Could not load submission history:', err));
     return () => {
       active = false;
     };
@@ -51,6 +59,13 @@ export function Dashboard() {
     <div className="page">
       <h1>Welcome back, {profile?.firstName || profile?.name}</h1>
       <p className="page-sub">{profile?.branch} branch{profile?.number ? ` · ${profile.number}` : ''}</p>
+
+      {error && (
+        <div className="banner banner-error">
+          <span className="banner-icon">!</span>
+          {error}
+        </div>
+      )}
 
       {!vehicle && (
         <div className="card empty-card">
