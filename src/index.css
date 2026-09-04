@@ -293,6 +293,9 @@ textarea {
 .btn-secondary:hover { background: var(--surface-cool); }
 
 .btn-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 32px;
   padding: 0 14px;
   background: var(--card-bg);
@@ -302,6 +305,7 @@ textarea {
   font-weight: 600;
   font-family: inherit;
   color: var(--navy);
+  text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
 }
