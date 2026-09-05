@@ -132,14 +132,21 @@ service cloud.firestore {
       allow delete: if isStaff();
 
       // Staff has full write power (companyId immutable); the client admin
-      // keeps exactly one field - an internal note - and a driver
-      // submitting a condition check stamps their own vehicle's
-      // lastInspectionAt, and only that one field, so they can't touch
-      // status, reg, or reassign the vehicle to a different driver.
+      // keeps exactly one field - an internal note - plus one narrow status
+      // transition (ending an Active Lease once the contract is complete or
+      // broken, since that's the admin's own business event, not staff's) -
+      // and a driver submitting a condition check stamps their own
+      // vehicle's lastInspectionAt, and only that one field, so they can't
+      // touch status, reg, or reassign the vehicle to a different driver.
       allow update: if
         (isStaff() && request.resource.data.companyId == resource.data.companyId) ||
         (isAdminOfCompany(resource.data.companyId) &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminNote'])) ||
+        (isAdminOfCompany(resource.data.companyId) &&
+          resource.data.status == 'Active Lease' &&
+          request.resource.data.status == 'Returned' &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'leaseEndReason', 'leaseEndedAt', 'leaseEndedBy', 'leaseEndedByUid'])) ||
         (isSignedIn() && resource.data.driverUid == request.auth.uid &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastInspectionAt']));
     }

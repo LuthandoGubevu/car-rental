@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { listVehicles } from '../../lib/firestore';
+import { listVehicles, deactivateVehicle } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
@@ -8,11 +8,13 @@ import { Toast } from '../../components/Toast';
 const STATUSES = ['Active Lease', 'Available', 'Inspection Due', 'Under Review', 'Maintenance', 'Accident Repair', 'Returned', 'Sold'];
 
 export function Vehicles() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const companyId = profile?.companyId;
   const [vehicles, setVehicles] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All statuses');
+  const [endingVehicle, setEndingVehicle] = useState(null);
+  const [busy, setBusy] = useState(false);
   const [toast, flash] = useFlash();
 
   useEffect(() => {
@@ -24,6 +26,20 @@ export function Vehicles() {
     const haystack = `${v.make} ${v.model} ${v.reg} ${v.customer || ''}`.toLowerCase();
     return matchesStatus && haystack.includes(search.toLowerCase());
   });
+
+  async function handleEndLease(reason) {
+    setBusy(true);
+    try {
+      await deactivateVehicle(endingVehicle.id, reason, profile?.name, user.uid);
+      setVehicles((prev) => prev.map((v) => (v.id === endingVehicle.id ? { ...v, status: 'Returned', leaseEndReason: reason } : v)));
+      flash('Lease ended. FleetCare staff will follow up on the vehicle’s return.');
+      setEndingVehicle(null);
+    } catch {
+      flash('We could not end this lease. Please try again.', 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="page">
@@ -42,7 +58,7 @@ export function Vehicles() {
 
       <div className="table-card">
         <table className="table">
-          <thead><tr><th>Vehicle</th><th>Reg</th><th>Branch</th><th>Customer</th><th>Status</th><th>Condition</th></tr></thead>
+          <thead><tr><th>Vehicle</th><th>Reg</th><th>Branch</th><th>Customer</th><th>Status</th><th>Condition</th><th></th></tr></thead>
           <tbody>
             {filtered.map((v) => (
               <tr key={v.id}>
@@ -52,6 +68,11 @@ export function Vehicles() {
                 <td>{v.customer || '—'}</td>
                 <td><StatusChip status={v.status} /></td>
                 <td><StatusChip status={v.condition} /></td>
+                <td>
+                  {v.status === 'Active Lease' && (
+                    <button className="btn-row-action" onClick={() => setEndingVehicle(v)}>End lease</button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -64,6 +85,30 @@ export function Vehicles() {
           </div>
         )}
       </div>
+
+      {endingVehicle && (
+        <div className="drawer-backdrop">
+          <div className="drawer-scrim" onClick={() => setEndingVehicle(null)} />
+          <div className="drawer">
+            <div className="drawer-head">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="drawer-eyebrow">{endingVehicle.reg}</div>
+                <h2 className="drawer-title">End this lease</h2>
+                <p className="drawer-meta">{endingVehicle.make} {endingVehicle.model} · {endingVehicle.customer || 'No customer on file'}</p>
+              </div>
+              <button className="drawer-close" onClick={() => setEndingVehicle(null)} aria-label="Close">✕</button>
+            </div>
+            <div className="drawer-body">
+              <p className="muted">Choose why this lease is ending. FleetCare staff will follow up to confirm the vehicle's return.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18 }}>
+                <button className="btn-primary btn-block" disabled={busy} onClick={() => handleEndLease('Completed')}>Contract completed</button>
+                <button className="btn-danger btn-block" disabled={busy} onClick={() => handleEndLease('Broken')}>Contract broken</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

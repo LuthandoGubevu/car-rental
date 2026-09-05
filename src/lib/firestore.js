@@ -59,6 +59,20 @@ export async function updateVehicle(id, data) {
   return updateDoc(doc(db, 'vehicles', id), data);
 }
 
+// Light action for a client admin: ends an Active Lease vehicle's lease once
+// the contract is complete or broken, without touching any other vehicle
+// field. FleetCare staff still owns every other status transition (return
+// inspection, maintenance, resale, etc).
+export async function deactivateVehicle(id, reason, adminName, adminUid) {
+  return updateDoc(doc(db, 'vehicles', id), {
+    status: 'Returned',
+    leaseEndReason: reason,
+    leaseEndedAt: serverTimestamp(),
+    leaseEndedBy: adminName,
+    leaseEndedByUid: adminUid,
+  });
+}
+
 // Bulk onboarding import - same shape/defaults as addVehicle, chunked into
 // batches of 400 (Firestore's write-batch limit is 500) so a fleet's worth
 // of vehicles can be created in a handful of round trips instead of one
