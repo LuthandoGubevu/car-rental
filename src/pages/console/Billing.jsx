@@ -66,6 +66,7 @@ export function Billing() {
       id: c.id,
       name: c.name,
       billingStatus: c.billingStatus,
+      hasContactEmail: Boolean(c.contactEmail),
       billable,
       reviewed: reviewedByCompany[c.id] || 0,
       owed: invoice ? invoice.amount : amountOwed(companyVehicles),
@@ -100,9 +101,19 @@ export function Billing() {
                 <td><StatusChip status={r.statusLabel} /></td>
                 <td>
                   {(r.billingStatus === 'no_payment_method' || !r.billingStatus) && (
-                    <button className="btn-row-action" onClick={() => setLinkCompany({ id: r.id, name: r.name })}>
-                      Send payment link
-                    </button>
+                    r.hasContactEmail ? (
+                      <button className="btn-row-action" onClick={() => setLinkCompany({ id: r.id, name: r.name })}>
+                        Send payment link
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-row-action"
+                        disabled
+                        title="This company has no contact email on file yet. Their admin can add one in Company Settings once they've accepted their invite."
+                      >
+                        Send payment link
+                      </button>
+                    )
                   )}
                 </td>
               </tr>
