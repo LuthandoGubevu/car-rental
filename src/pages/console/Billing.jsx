@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listCompanies, listAllVehicles, listAllSubmissions, listInvoicesForPeriod } from '../../lib/firestore';
+import { useConsoleData } from '../../context/ConsoleDataContext';
+import { listInvoicesForPeriod } from '../../lib/firestore';
 import { billableVehicles, amountOwed, FLAT_RATE_PER_VEHICLE } from '../../lib/pricing';
 import { StatusChip } from '../../components/StatusChip';
 import { PaymentLinkDrawer } from '../../components/PaymentLinkDrawer';
@@ -23,21 +24,24 @@ function formatRand(n) {
 const INVOICE_STATUS_LABEL = { paid: 'Paid', pending: 'Pending', failed: 'Failed', failed_final: 'Failed' };
 
 export function Billing() {
-  const [companies, setCompanies] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
+  const { companies, vehicles, submissions, error, refresh: refreshConsoleData } = useConsoleData();
   const [invoices, setInvoices] = useState([]);
   const [linkCompany, setLinkCompany] = useState(null);
   const [toast, flash] = useFlash();
 
-  function refresh() {
-    listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
-    listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
-    listAllSubmissions().then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
+  function refreshInvoices() {
     listInvoicesForPeriod(currentPeriodKey()).then(setInvoices).catch(() => flash('We could not load invoices.', 'error'));
   }
 
-  useEffect(refresh, [flash]);
+  useEffect(refreshInvoices, [flash]);
+  useEffect(() => {
+    if (error) flash(error, 'error');
+  }, [error, flash]);
+
+  function refresh() {
+    refreshConsoleData();
+    refreshInvoices();
+  }
 
   const vehiclesByCompany = vehicles.reduce((groups, v) => {
     if (v.companyId) (groups[v.companyId] ||= []).push(v);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { listDemoRequests, markDemoRequestContacted } from '../../lib/firestore';
+import { markDemoRequestContacted } from '../../lib/firestore';
 import { useAuth } from '../../context/AuthContext';
+import { useConsoleData } from '../../context/ConsoleDataContext';
 import { StatusChip } from '../../components/StatusChip';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
@@ -13,16 +14,14 @@ function formatDate(ts) {
 
 export function DemoRequests() {
   const { profile } = useAuth();
+  const { demoRequests: requests, error, refresh } = useConsoleData();
   const [tab, setTab] = useState('open');
-  const [requests, setRequests] = useState([]);
   const [busy, setBusy] = useState(null);
   const [toast, flash] = useFlash();
 
-  function refresh() {
-    listDemoRequests().then(setRequests).catch(() => flash('We could not load demo requests.', 'error'));
-  }
-
-  useEffect(refresh, [flash]);
+  useEffect(() => {
+    if (error) flash(error, 'error');
+  }, [error, flash]);
 
   const newRequests = requests.filter((r) => r.status === 'New');
   const visible = tab === 'open' ? newRequests : requests;

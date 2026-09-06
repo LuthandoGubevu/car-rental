@@ -152,7 +152,7 @@ export function VehicleCheck() {
           <div className="review-grid">
             {ANGLES.map((a) => (
               <div key={a.key} className="review-photo">
-                <img src={photos[a.key]?.previewUrl} alt={a.label} />
+                <img src={photos[a.key]?.previewUrl} alt={a.label} loading="lazy" />
                 <span>{a.label}</span>
               </div>
             ))}

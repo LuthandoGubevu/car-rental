@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useMobileNav } from '../../../lib/useMobileNav';
-import { getCompany, listCompanies, listSubmissions, listIncidents } from '../../../lib/firestore';
+import { useConsoleData } from '../../../context/ConsoleDataContext';
+import { getCompany, listSubmissions, listIncidents } from '../../../lib/firestore';
 
 const NAV = [
   ['', 'Overview'],
@@ -44,17 +45,13 @@ export function CompanyWorkspaceLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [company, setCompany] = useState(null);
-  const [companies, setCompanies] = useState([]);
+  const { companies } = useConsoleData();
   const { awaiting, openIncidents } = useCompanyCounts(companyId);
   const { open, toggle, close } = useMobileNav();
 
   useEffect(() => {
     if (companyId) getCompany(companyId).then(setCompany).catch((err) => console.error('Could not load company:', err));
   }, [companyId]);
-
-  useEffect(() => {
-    listCompanies().then(setCompanies).catch((err) => console.error('Could not load companies:', err));
-  }, []);
 
   const base = `/console/companies/${companyId}`;
   const badges = { [`${base}/queue`]: awaiting, [`${base}/incidents`]: openIncidents };

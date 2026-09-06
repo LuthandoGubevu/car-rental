@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMobileNav } from '../../lib/useMobileNav';
-import { listCompanies, listDemoRequests } from '../../lib/firestore';
+import { useConsoleData } from '../../context/ConsoleDataContext';
 
 const NAV = [
   ['/console', 'Overview'],
@@ -26,19 +25,10 @@ function useCrumbLeaf() {
   return match ? match[1] : 'Overview';
 }
 
-function useConsoleCounts() {
-  const [counts, setCounts] = useState({ newDemoRequests: 0 });
-  useEffect(() => {
-    Promise.all([listCompanies(), listDemoRequests()])
-      .then(([, demoRequests]) => setCounts({ newDemoRequests: demoRequests.filter((r) => r.status === 'New').length }))
-      .catch((err) => console.error('Could not load console counts:', err));
-  }, []);
-  return counts;
-}
-
 export function ConsoleLayout() {
   const { profile, signOut } = useAuth();
-  const { newDemoRequests } = useConsoleCounts();
+  const { demoRequests } = useConsoleData();
+  const newDemoRequests = demoRequests.filter((r) => r.status === 'New').length;
   const badges = { '/console/demo-requests': newDemoRequests };
   const crumbLeaf = useCrumbLeaf();
   const { open, toggle, close } = useMobileNav();

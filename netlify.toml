@@ -10,6 +10,13 @@
   # instead of trying to bundle it.
   external_node_modules = ["firebase-admin"]
 
+# Vite content-hashes every file under dist/assets/, so a given URL's
+# content never changes - safe to cache for a year without revalidation.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # React Router uses client-side routing, so every path must fall back to
 # index.html - otherwise a deep link (e.g. /history) 404s on Netlify's
 # static file server instead of loading the app. Functions and real static

@@ -157,7 +157,7 @@ export function ReviewQueue() {
                 {ANGLES.map((angle) => (
                   <div className="review-photo" key={angle.key}>
                     {selected.photos?.[angle.key] ? (
-                      <img src={selected.photos[angle.key]} alt={angle.label} />
+                      <img src={selected.photos[angle.key]} alt={angle.label} loading="lazy" />
                     ) : (
                       <div className="review-photo-placeholder" />
                     )}

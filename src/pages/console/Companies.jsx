@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { listCompanies, listAllVehicles, createCompany, createInvite, updateCompany, listCompanyInvites } from '../../lib/firestore';
+import { useConsoleData } from '../../context/ConsoleDataContext';
+import { createCompany, createInvite, updateCompany, listCompanyInvites } from '../../lib/firestore';
 import { StatusChip } from '../../components/StatusChip';
 import { InviteLinkDrawer } from '../../components/InviteLinkDrawer';
 import { useFlash } from '../../lib/useFlash';
@@ -20,8 +21,7 @@ function formatDate(ts) {
 
 export function Companies() {
   const { user } = useAuth();
-  const [companies, setCompanies] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
+  const { companies, vehicles, error, refresh } = useConsoleData();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All statuses');
   const [formOpen, setFormOpen] = useState(false);
@@ -31,12 +31,9 @@ export function Companies() {
   const [invite, setInvite] = useState(null);
   const [toast, flash] = useFlash();
 
-  function refresh() {
-    listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
-    listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
-  }
-
-  useEffect(refresh, [flash]);
+  useEffect(() => {
+    if (error) flash(error, 'error');
+  }, [error, flash]);
 
   const vehicleCounts = vehicles.reduce((counts, v) => {
     if (v.companyId) counts[v.companyId] = (counts[v.companyId] || 0) + 1;

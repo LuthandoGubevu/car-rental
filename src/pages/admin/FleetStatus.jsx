@@ -174,7 +174,7 @@ export function FleetStatus() {
                 {ANGLES.map((angle) => (
                   <div className="review-photo" key={angle.key}>
                     {photosFor.photos?.[angle.key] ? (
-                      <img src={photosFor.photos[angle.key]} alt={angle.label} />
+                      <img src={photosFor.photos[angle.key]} alt={angle.label} loading="lazy" />
                     ) : (
                       <div className="review-photo-placeholder" />
                     )}

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { listCompanies, listDemoRequests, listAllVehicles, listAllSubmissions } from '../../lib/firestore';
+import { useConsoleData } from '../../context/ConsoleDataContext';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 
@@ -50,125 +50,123 @@ function daysSince(date) {
 }
 
 export function ConsoleOverview() {
-  const [companies, setCompanies] = useState([]);
-  const [demoRequests, setDemoRequests] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [submissions, setSubmissions] = useState([]);
+  const { companies, demoRequests, vehicles, submissions, error } = useConsoleData();
   const [toast, flash] = useFlash();
 
   useEffect(() => {
-    listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
-    listDemoRequests().then(setDemoRequests).catch(() => flash('We could not load demo requests.', 'error'));
-    listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
-    listAllSubmissions().then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
-  }, [flash]);
+    if (error) flash(error, 'error');
+  }, [error, flash]);
 
-  const newDemoRequests = demoRequests.filter((r) => r.status === 'New');
-  const oldestNew = newDemoRequests
-    .map((r) => r.createdAt?.toDate?.())
-    .filter(Boolean)
-    .sort((a, b) => a - b)[0];
-  const oldestDays = oldestNew ? daysSince(oldestNew) : null;
+  const { KPIS, weeks, maxWeek, recentTotal, attentionRows } = useMemo(() => {
+    const newDemoRequests = demoRequests.filter((r) => r.status === 'New');
+    const oldestNew = newDemoRequests
+      .map((r) => r.createdAt?.toDate?.())
+      .filter(Boolean)
+      .sort((a, b) => a - b)[0];
+    const oldestDays = oldestNew ? daysSince(oldestNew) : null;
 
-  const trialCompanies = companies.filter((c) => c.status === 'trial');
-  const activeCompanies = companies.filter((c) => c.status === 'active');
+    const trialCompanies = companies.filter((c) => c.status === 'trial');
+    const activeCompanies = companies.filter((c) => c.status === 'active');
 
-  const now = new Date();
-  const lastMonthRef = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const companiesThisMonth = companies.filter((c) => {
-    const d = c.createdAt?.toDate?.();
-    return d && sameMonth(d, now);
-  }).length;
-  const companiesLastMonth = companies.filter((c) => {
-    const d = c.createdAt?.toDate?.();
-    return d && sameMonth(d, lastMonthRef);
-  }).length;
+    const now = new Date();
+    const lastMonthRef = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const companiesThisMonth = companies.filter((c) => {
+      const d = c.createdAt?.toDate?.();
+      return d && sameMonth(d, now);
+    }).length;
+    const companiesLastMonth = companies.filter((c) => {
+      const d = c.createdAt?.toDate?.();
+      return d && sameMonth(d, lastMonthRef);
+    }).length;
 
-  const companyIdsWithVehicles = new Set(vehicles.map((v) => v.companyId).filter(Boolean));
-  const idleCompanies = companies.filter((c) => !companyIdsWithVehicles.has(c.id));
+    const companyIdsWithVehicles = new Set(vehicles.map((v) => v.companyId).filter(Boolean));
+    const idleCompanies = companies.filter((c) => !companyIdsWithVehicles.has(c.id));
 
-  const reviewedThisMonth = submissions.filter((s) => {
-    if (s.status === 'Awaiting Review') return false;
-    const d = s.reviewedAt?.toDate?.();
-    return d && sameMonth(d, now);
-  });
-  const reviewedTotal = submissions.filter((s) => s.status !== 'Awaiting Review').length;
+    const reviewedThisMonth = submissions.filter((s) => {
+      if (s.status === 'Awaiting Review') return false;
+      const d = s.reviewedAt?.toDate?.();
+      return d && sameMonth(d, now);
+    });
+    const reviewedTotal = submissions.filter((s) => s.status !== 'Awaiting Review').length;
 
-  const KPIS = [
-    {
-      label: 'New demo requests',
-      value: newDemoRequests.length,
-      unit: 'to contact',
-      accent: '#f47724',
-      tag: newDemoRequests.length > 0 && oldestDays !== null ? `Oldest ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : null,
-      frac: clamp01(demoRequests.length ? newDemoRequests.length / demoRequests.length : 0),
-    },
-    {
-      label: 'Companies on the platform',
-      value: companies.length,
-      unit: 'companies',
-      accent: '#00507f',
-      tag: trialCompanies.length > 0 ? `${trialCompanies.length} in trial` : null,
-      frac: clamp01(companies.length ? activeCompanies.length / companies.length : 0),
-    },
-    {
-      label: 'New companies this month',
-      value: companiesThisMonth,
-      unit: 'signed up',
-      accent: '#22a35a',
-      tag:
-        companiesLastMonth && companiesLastMonth !== companiesThisMonth
-          ? companiesThisMonth < companiesLastMonth
-            ? `Down from ${companiesLastMonth}`
-            : `Up from ${companiesLastMonth}`
-          : null,
-      frac: clamp01(companies.length ? companiesThisMonth / companies.length : 0),
-    },
-    {
-      label: 'Vehicles under management',
-      value: vehicles.length,
-      unit: 'vehicles',
-      accent: '#8b5cf6',
-      tag:
-        companyIdsWithVehicles.size > 0
-          ? `${companyIdsWithVehicles.size} compan${companyIdsWithVehicles.size === 1 ? 'y' : 'ies'} reporting`
-          : null,
-      frac: clamp01(companies.length ? companyIdsWithVehicles.size / companies.length : 0),
-    },
-    {
-      label: 'Inspections reviewed this month',
-      value: reviewedThisMonth.length,
-      unit: 'reviewed',
-      accent: '#22a35a',
-      tag: reviewedTotal > 0 ? `${reviewedTotal} all time` : null,
-      frac: clamp01(reviewedTotal ? reviewedThisMonth.length / reviewedTotal : 0),
-    },
-  ];
+    const kpis = [
+      {
+        label: 'New demo requests',
+        value: newDemoRequests.length,
+        unit: 'to contact',
+        accent: '#f47724',
+        tag: newDemoRequests.length > 0 && oldestDays !== null ? `Oldest ${oldestDays} day${oldestDays === 1 ? '' : 's'}` : null,
+        frac: clamp01(demoRequests.length ? newDemoRequests.length / demoRequests.length : 0),
+      },
+      {
+        label: 'Companies on the platform',
+        value: companies.length,
+        unit: 'companies',
+        accent: '#00507f',
+        tag: trialCompanies.length > 0 ? `${trialCompanies.length} in trial` : null,
+        frac: clamp01(companies.length ? activeCompanies.length / companies.length : 0),
+      },
+      {
+        label: 'New companies this month',
+        value: companiesThisMonth,
+        unit: 'signed up',
+        accent: '#22a35a',
+        tag:
+          companiesLastMonth && companiesLastMonth !== companiesThisMonth
+            ? companiesThisMonth < companiesLastMonth
+              ? `Down from ${companiesLastMonth}`
+              : `Up from ${companiesLastMonth}`
+            : null,
+        frac: clamp01(companies.length ? companiesThisMonth / companies.length : 0),
+      },
+      {
+        label: 'Vehicles under management',
+        value: vehicles.length,
+        unit: 'vehicles',
+        accent: '#8b5cf6',
+        tag:
+          companyIdsWithVehicles.size > 0
+            ? `${companyIdsWithVehicles.size} compan${companyIdsWithVehicles.size === 1 ? 'y' : 'ies'} reporting`
+            : null,
+        frac: clamp01(companies.length ? companyIdsWithVehicles.size / companies.length : 0),
+      },
+      {
+        label: 'Inspections reviewed this month',
+        value: reviewedThisMonth.length,
+        unit: 'reviewed',
+        accent: '#22a35a',
+        tag: reviewedTotal > 0 ? `${reviewedTotal} all time` : null,
+        frac: clamp01(reviewedTotal ? reviewedThisMonth.length / reviewedTotal : 0),
+      },
+    ];
 
-  const weeks = weekBuckets(demoRequests);
-  const maxWeek = Math.max(1, ...weeks.map((w) => w.count));
-  const recentTotal = weeks.reduce((sum, w) => sum + w.count, 0);
+    const weekData = weekBuckets(demoRequests);
+    const maxWeekCount = Math.max(1, ...weekData.map((w) => w.count));
+    const recentWeekTotal = weekData.reduce((sum, w) => sum + w.count, 0);
 
-  const attentionRows = [
-    newDemoRequests.length > 0 && {
-      to: '/console/demo-requests',
-      dot: '#f47724',
-      title: `${newDemoRequests.length} new demo request${newDemoRequests.length === 1 ? '' : 's'}`,
-      sub: 'Demo requests · from the public site',
-    },
-    trialCompanies.length > 0 && {
-      to: '/console/companies',
-      dot: '#d99a2b',
-      title: `${trialCompanies.length} compan${trialCompanies.length === 1 ? 'y' : 'ies'} on trial`,
-      sub: 'Companies · convert before their trial ends',
-    },
-    idleCompanies.length > 0 && {
-      to: '/console/companies',
-      dot: '#3b6fd4',
-      title: `${idleCompanies.length} compan${idleCompanies.length === 1 ? 'y' : 'ies'} with no vehicles yet`,
-      sub: 'Companies · onboarded but not yet active',
-    },
-  ].filter(Boolean);
+    const rows = [
+      newDemoRequests.length > 0 && {
+        to: '/console/demo-requests',
+        dot: '#f47724',
+        title: `${newDemoRequests.length} new demo request${newDemoRequests.length === 1 ? '' : 's'}`,
+        sub: 'Demo requests · from the public site',
+      },
+      trialCompanies.length > 0 && {
+        to: '/console/companies',
+        dot: '#d99a2b',
+        title: `${trialCompanies.length} compan${trialCompanies.length === 1 ? 'y' : 'ies'} on trial`,
+        sub: 'Companies · convert before their trial ends',
+      },
+      idleCompanies.length > 0 && {
+        to: '/console/companies',
+        dot: '#3b6fd4',
+        title: `${idleCompanies.length} compan${idleCompanies.length === 1 ? 'y' : 'ies'} with no vehicles yet`,
+        sub: 'Companies · onboarded but not yet active',
+      },
+    ].filter(Boolean);
+
+    return { KPIS: kpis, weeks: weekData, maxWeek: maxWeekCount, recentTotal: recentWeekTotal, attentionRows: rows };
+  }, [companies, demoRequests, vehicles, submissions]);
 
   return (
     <div className="page">
