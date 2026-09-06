@@ -167,19 +167,28 @@ export function Landing() {
       </section>
 
       <section id="pricing" className="landing-section landing-section-alt">
-        <h2 className="landing-section-title">Simple, per-vehicle pricing</h2>
+        <p className="landing-eyebrow" style={{ textAlign: 'center' }}>Pricing</p>
+        <h2 className="landing-section-title">Simple, per vehicle pricing</h2>
         <p className="muted landing-demo-sub">
-          From R42 to R89 per vehicle per month, depending on fleet size.
+          One flat rate. <strong>We do the reviewing, not your team.</strong>
         </p>
-        <div className="landing-pricing-tags">
-          <span className="landing-pricing-tag">Priced per vehicle, per month</span>
-          <span className="landing-pricing-tag">Volume discounts as your fleet grows</span>
-          <span className="landing-pricing-tag">White label setup available</span>
-          <span className="landing-pricing-tag">No long term commitment</span>
-        </div>
-        <div className="landing-cta-row">
-          <a href="#book-demo" className="btn-orange btn-inline">Get a quote</a>
-          <a href="#how-it-works" className="btn-ghost btn-inline">See how it works</a>
+
+        <div className="pricing-card">
+          <span className="pricing-badge mono">Per vehicle, per month</span>
+          <div className="pricing-amount">
+            <span className="pricing-figure">R30</span>
+            <span className="pricing-unit mono">/ vehicle / mo</span>
+          </div>
+          <p className="pricing-fineprint">R550 per month minimum · no setup fee</p>
+          <hr className="pricing-divider" />
+          <ul className="pricing-features">
+            <li><span className="pricing-check">✓</span>Every submission reviewed by our team, with a reason if declined</li>
+            <li><span className="pricing-check">✓</span>Camera locked capture, nothing to configure, nothing to game</li>
+            <li><span className="pricing-check">✓</span>A monthly status view, not another dashboard to manage</li>
+            <li><span className="pricing-check">✓</span>No long term lock in for pilot partners</li>
+          </ul>
+          <a href="#book-demo" className="btn-orange btn-block">Talk to us</a>
+          <a href="#how-it-works" className="pricing-link">See how it works →</a>
         </div>
       </section>
 
