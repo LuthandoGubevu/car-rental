@@ -205,5 +205,14 @@ service cloud.firestore {
         request.resource.data.company is string && request.resource.data.company.size() > 0 &&
         request.resource.data.email is string && request.resource.data.email.size() > 0;
     }
+
+    // Billing invoices, one per company per month. Read-only from the
+    // client SDK, even for staff - every write comes from the Netlify
+    // Functions using the Admin SDK, which bypasses these rules entirely,
+    // so a client-side write attempt is never legitimate here.
+    match /invoices/{id} {
+      allow read: if isStaff();
+      allow create, update, delete: if false;
+    }
   }
 }

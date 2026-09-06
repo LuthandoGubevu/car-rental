@@ -37,6 +37,12 @@ const STYLES = {
   Invited: GROUPS.amber,
   'Up to date': GROUPS.green,
   'Check overdue': GROUPS.amber,
+  Paid: GROUPS.green,
+  Pending: GROUPS.amber,
+  Failed: GROUPS.red,
+  'Past due': GROUPS.red,
+  'No card on file': GROUPS.grey,
+  Estimate: GROUPS.blue,
 };
 
 export function StatusChip({ status }) {

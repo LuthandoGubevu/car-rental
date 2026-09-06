@@ -338,6 +338,7 @@ export async function createCompany({ name, tier, branches, contactName, contact
     contactPhone: contactPhone || '',
     address: address || '',
     primaryAdminUid: null,
+    billingStatus: 'no_payment_method',
     createdAt: serverTimestamp(),
     createdBy: staffUid,
   });
@@ -437,4 +438,12 @@ export async function acceptInviteTransaction(inviteId, uid, profileFields) {
     });
     tx.update(inviteRef, { status: 'accepted', acceptedBy: uid, acceptedAt: serverTimestamp() });
   });
+}
+
+// --- Billing (staff-only read; every write comes from the Netlify
+// Functions using the Admin SDK, see firestore.rules) ---
+
+export async function listInvoicesForPeriod(periodKey) {
+  const snap = await getDocs(query(collection(db, 'invoices'), where('periodKey', '==', periodKey)));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }

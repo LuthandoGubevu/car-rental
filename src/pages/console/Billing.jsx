@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listCompanies, listAllVehicles, listAllSubmissions } from '../../lib/firestore';
+import { listCompanies, listAllVehicles, listAllSubmissions, listInvoicesForPeriod } from '../../lib/firestore';
 import { billableVehicles, amountOwed, FLAT_RATE_PER_VEHICLE } from '../../lib/pricing';
+import { StatusChip } from '../../components/StatusChip';
+import { PaymentLinkDrawer } from '../../components/PaymentLinkDrawer';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 
@@ -9,21 +11,33 @@ function sameMonth(date, ref) {
   return date.getFullYear() === ref.getFullYear() && date.getMonth() === ref.getMonth();
 }
 
+function currentPeriodKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 function formatRand(n) {
   return `R${n.toLocaleString('en-ZA')}`;
 }
+
+const INVOICE_STATUS_LABEL = { paid: 'Paid', pending: 'Pending', failed: 'Failed', failed_final: 'Failed' };
 
 export function Billing() {
   const [companies, setCompanies] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [submissions, setSubmissions] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [linkCompany, setLinkCompany] = useState(null);
   const [toast, flash] = useFlash();
 
-  useEffect(() => {
+  function refresh() {
     listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
     listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
     listAllSubmissions().then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
-  }, [flash]);
+    listInvoicesForPeriod(currentPeriodKey()).then(setInvoices).catch(() => flash('We could not load invoices.', 'error'));
+  }
+
+  useEffect(refresh, [flash]);
 
   const vehiclesByCompany = vehicles.reduce((groups, v) => {
     if (v.companyId) (groups[v.companyId] ||= []).push(v);
@@ -39,14 +53,27 @@ export function Billing() {
     return counts;
   }, {});
 
+  const invoiceByCompany = invoices.reduce((map, inv) => {
+    if (inv.companyId) map[inv.companyId] = inv;
+    return map;
+  }, {});
+
   const rows = companies.map((c) => {
     const companyVehicles = vehiclesByCompany[c.id] || [];
+    const invoice = invoiceByCompany[c.id];
+    const billable = billableVehicles(companyVehicles).length;
     return {
       id: c.id,
       name: c.name,
-      billable: billableVehicles(companyVehicles).length,
+      billingStatus: c.billingStatus,
+      billable,
       reviewed: reviewedByCompany[c.id] || 0,
-      owed: amountOwed(companyVehicles),
+      owed: invoice ? invoice.amount : amountOwed(companyVehicles),
+      statusLabel: invoice
+        ? INVOICE_STATUS_LABEL[invoice.status] || 'Pending'
+        : c.billingStatus === 'no_payment_method' || !c.billingStatus
+          ? 'No card on file'
+          : 'Estimate',
     };
   });
 
@@ -58,11 +85,11 @@ export function Billing() {
   return (
     <div className="page">
       <h1>Billing</h1>
-      <p className="page-sub">Estimated monthly billing per company, at R{FLAT_RATE_PER_VEHICLE} per vehicle</p>
+      <p className="page-sub">Monthly billing per company, at R{FLAT_RATE_PER_VEHICLE} per vehicle</p>
 
       <div className="table-card">
         <table className="table">
-          <thead><tr><th>Company</th><th>Vehicles</th><th>Reviewed this month</th><th>Est. owed this month</th></tr></thead>
+          <thead><tr><th>Company</th><th>Vehicles</th><th>Reviewed this month</th><th>Amount</th><th>Status</th><th></th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
@@ -70,6 +97,14 @@ export function Billing() {
                 <td>{r.billable}</td>
                 <td>{r.reviewed}</td>
                 <td>{formatRand(r.owed)}</td>
+                <td><StatusChip status={r.statusLabel} /></td>
+                <td>
+                  {(r.billingStatus === 'no_payment_method' || !r.billingStatus) && (
+                    <button className="btn-row-action" onClick={() => setLinkCompany({ id: r.id, name: r.name })}>
+                      Send payment link
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -80,6 +115,8 @@ export function Billing() {
                 <td><strong>{totals.billable}</strong></td>
                 <td><strong>{totals.reviewed}</strong></td>
                 <td><strong>{formatRand(totals.owed)}</strong></td>
+                <td></td>
+                <td></td>
               </tr>
             </tfoot>
           )}
@@ -94,10 +131,15 @@ export function Billing() {
       </div>
 
       <p className="muted" style={{ marginTop: 16, fontSize: 13 }}>
-        This is a live estimate based on each company's current fleet, not a saved invoice. A vehicle counts as
-        billable unless it's marked Returned or Sold. No payment status is tracked here yet.
+        A company with a card on file shows its real invoice for this month. A company without one shows a live
+        estimate based on its current fleet instead. A vehicle counts as billable unless it's marked Returned or Sold.
       </p>
 
+      <PaymentLinkDrawer
+        company={linkCompany}
+        onClose={() => { setLinkCompany(null); refresh(); }}
+        onError={(msg) => flash(msg, 'error')}
+      />
       <Toast message={toast?.message} kind={toast?.kind} />
     </div>
   );

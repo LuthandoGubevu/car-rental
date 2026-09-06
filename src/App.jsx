@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { AcceptInvite } from './pages/AcceptInvite';
+import { BillingConfirmation } from './pages/BillingConfirmation';
 import { CustomerLayout } from './pages/customer/CustomerLayout';
 import { Dashboard } from './pages/customer/Dashboard';
 import { VehicleCheck } from './pages/customer/VehicleCheck';
@@ -40,6 +41,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/accept-invite/:inviteId" element={<AcceptInvite />} />
+      <Route path="/billing-confirmation" element={<BillingConfirmation />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/popia" element={<Popia />} />

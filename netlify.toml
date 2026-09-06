@@ -2,9 +2,18 @@
   command = "npm run build"
   publish = "dist"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # firebase-admin pulls in @grpc/grpc-js / google-gax with dynamic requires
+  # that esbuild's bundler chokes on - ship it from node_modules as-is
+  # instead of trying to bundle it.
+  external_node_modules = ["firebase-admin"]
+
 # React Router uses client-side routing, so every path must fall back to
 # index.html - otherwise a deep link (e.g. /history) 404s on Netlify's
-# static file server instead of loading the app.
+# static file server instead of loading the app. Functions and real static
+# files are matched first, so this never intercepts them.
 [[redirects]]
   from = "/*"
   to = "/index.html"
