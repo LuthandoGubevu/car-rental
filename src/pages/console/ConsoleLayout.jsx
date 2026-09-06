@@ -7,6 +7,7 @@ import { listCompanies, listDemoRequests } from '../../lib/firestore';
 const NAV = [
   ['/console', 'Overview'],
   ['/console/companies', 'Companies'],
+  ['/console/billing', 'Billing'],
   ['/console/demo-requests', 'Demo requests'],
 ];
 

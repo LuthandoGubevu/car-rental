@@ -20,6 +20,7 @@ import { CompanySettings } from './pages/admin/CompanySettings';
 import { ConsoleLayout } from './pages/console/ConsoleLayout';
 import { ConsoleOverview } from './pages/console/ConsoleOverview';
 import { Companies } from './pages/console/Companies';
+import { Billing } from './pages/console/Billing';
 import { DemoRequests } from './pages/console/DemoRequests';
 import { CompanyWorkspaceLayout } from './pages/console/company/CompanyWorkspaceLayout';
 import { Overview as CompanyOverview } from './pages/console/company/Overview';
@@ -64,6 +65,7 @@ export default function App() {
       <Route path="/console" element={<ProtectedRoute role="staff"><ConsoleLayout /></ProtectedRoute>}>
         <Route index element={<ConsoleOverview />} />
         <Route path="companies" element={<Companies />} />
+        <Route path="billing" element={<Billing />} />
         <Route path="demo-requests" element={<DemoRequests />} />
       </Route>
 

@@ -188,6 +188,14 @@ export async function listSubmissions(status, companyId) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
+// Staff-only: every submission across every company, for business-wide
+// billing/reporting. Regular per-company reads still go through
+// listSubmissions(status, companyId).
+export async function listAllSubmissions() {
+  const snap = await getDocs(collection(db, 'submissions'));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
 export async function getSubmission(id) {
   const snap = await getDoc(doc(db, 'submissions', id));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;

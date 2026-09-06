@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listCompanies, listDemoRequests, listAllVehicles } from '../../lib/firestore';
+import { listCompanies, listDemoRequests, listAllVehicles, listAllSubmissions } from '../../lib/firestore';
 import { useFlash } from '../../lib/useFlash';
 import { Toast } from '../../components/Toast';
 
@@ -53,12 +53,14 @@ export function ConsoleOverview() {
   const [companies, setCompanies] = useState([]);
   const [demoRequests, setDemoRequests] = useState([]);
   const [vehicles, setVehicles] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [toast, flash] = useFlash();
 
   useEffect(() => {
     listCompanies().then(setCompanies).catch(() => flash('We could not load companies.', 'error'));
     listDemoRequests().then(setDemoRequests).catch(() => flash('We could not load demo requests.', 'error'));
     listAllVehicles().then(setVehicles).catch(() => flash('We could not load vehicles.', 'error'));
+    listAllSubmissions().then(setSubmissions).catch(() => flash('We could not load submissions.', 'error'));
   }, [flash]);
 
   const newDemoRequests = demoRequests.filter((r) => r.status === 'New');
@@ -84,6 +86,13 @@ export function ConsoleOverview() {
 
   const companyIdsWithVehicles = new Set(vehicles.map((v) => v.companyId).filter(Boolean));
   const idleCompanies = companies.filter((c) => !companyIdsWithVehicles.has(c.id));
+
+  const reviewedThisMonth = submissions.filter((s) => {
+    if (s.status === 'Awaiting Review') return false;
+    const d = s.reviewedAt?.toDate?.();
+    return d && sameMonth(d, now);
+  });
+  const reviewedTotal = submissions.filter((s) => s.status !== 'Awaiting Review').length;
 
   const KPIS = [
     {
@@ -125,6 +134,14 @@ export function ConsoleOverview() {
           ? `${companyIdsWithVehicles.size} compan${companyIdsWithVehicles.size === 1 ? 'y' : 'ies'} reporting`
           : null,
       frac: clamp01(companies.length ? companyIdsWithVehicles.size / companies.length : 0),
+    },
+    {
+      label: 'Inspections reviewed this month',
+      value: reviewedThisMonth.length,
+      unit: 'reviewed',
+      accent: '#22a35a',
+      tag: reviewedTotal > 0 ? `${reviewedTotal} all time` : null,
+      frac: clamp01(reviewedTotal ? reviewedThisMonth.length / reviewedTotal : 0),
     },
   ];
 
