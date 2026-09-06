@@ -17,11 +17,14 @@ export function PaymentLinkDrawer({ company, onClose, onError }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
         body: JSON.stringify({ companyId: company.id }),
       });
-      if (!res.ok) throw new Error('Request failed');
+      if (!res.ok) {
+        const message = await res.text().catch(() => '');
+        throw new Error(message || 'Request failed');
+      }
       const { authorizationUrl } = await res.json();
       setLink(authorizationUrl);
-    } catch {
-      onError?.('We could not generate a payment link. Please try again.');
+    } catch (err) {
+      onError?.(err.message || 'We could not generate a payment link. Please try again.');
       onClose();
     } finally {
       setBusy(false);
