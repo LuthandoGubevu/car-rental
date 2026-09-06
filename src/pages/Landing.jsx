@@ -179,7 +179,7 @@ export function Landing() {
             <span className="pricing-figure">R30</span>
             <span className="pricing-unit mono">/ vehicle / mo</span>
           </div>
-          <p className="pricing-fineprint">R550 per month minimum · no setup fee</p>
+          <p className="pricing-fineprint">No setup fee</p>
           <hr className="pricing-divider" />
           <ul className="pricing-features">
             <li><span className="pricing-check">✓</span>Every submission reviewed by our team, with a reason if declined</li>
